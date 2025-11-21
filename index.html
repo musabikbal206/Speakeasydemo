@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>History Heroes & Grammar</title>
+    <title>History Heroes & Grammar (Bilingual)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
@@ -23,21 +23,83 @@
             50% { transform: translateY(-5px); }
         }
 
-        /* Speaking Animation */
-        .speaking-anim {
-            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-        }
+        .speaking-anim { animation: pulse-ring 1.5s infinite; }
         @keyframes pulse-ring {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.7); }
             70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(251, 146, 60, 0); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 146, 60, 0); }
         }
 
-        /* Scramble Word Animation */
         .word-move { transition: all 0.2s ease; }
+
+        /* --- NEW STYLES FOR TRANSLATION --- */
+        .interactive-word {
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+            display: inline-block;
+            padding: 0 2px;
+            border-radius: 4px;
+        }
+        .interactive-word:hover {
+            background-color: #ffedd5; /* light orange */
+            color: #c2410c;
+        }
+        
+        .sentence-wrapper {
+            margin-bottom: 1.5rem;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+        .sentence-wrapper:hover {
+            background-color: #fff7ed; /* very light orange */
+        }
+
+        .tr-sentence {
+            display: none;
+            margin-top: 8px;
+            color: #ea580c; /* orange-600 */
+            font-weight: 600;
+            font-style: italic;
+            border-left: 4px solid #f97316;
+            padding-left: 12px;
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tooltip for words */
+        #word-tooltip {
+            position: absolute;
+            background: #1e293b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 50;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #word-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1e293b transparent transparent transparent;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen pb-20">
+
+    <div id="word-tooltip">Translation</div>
 
     <header class="bg-white p-6 text-center shadow-sm border-b border-gray-200 sticky top-0 z-20">
         <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800 tracking-tight mb-1">History Heroes & Grammar</h1>
@@ -76,17 +138,13 @@
                     </div>
                 </div>
                 
-                <div id="story-text" class="prose text-gray-800 leading-relaxed space-y-4 text-lg">
-                    <p>When you visit Gallipoli, you can see the huge statue of Seyit Onbaşı. The statue shows him with a big shell in his arms. Seyit Onbaşı was an Ottoman soldier during the war of Çanakkale. He became a soldier in 1909. After 6 years, he was still serving in Çanakkale Rumeli Mecidiye Batarya in 1915. Soldiers were fighting on hills and valleys under a rain of fire. They fired shells at the ship Queen Elizabeth and hit her.</p>
-                    <p>After that, the enemy fired back to Mecidiye Batarya, killed almost all of the Turkish soldiers and destroyed most of the guns. There was dust, blood and cries everywhere. While the batarya commander and a soldier were walking among the dead soldiers, they saw a soldier under stones and soil. He was Seyit Onbaşı. He was a tall and strong man. They helped him to stand up.</p>
-                    <p>When Seyit Onbaşı was on his feet, he saw that there was only one cannon in good condition, but it didn't work well. Seyit moved. First, he lifted the <span class="font-bold text-amber-700 bg-amber-100 px-1 rounded">275 kg shell</span> with the help of his friend, then, put it on his shoulder and finally climbed up to the gun and placed the shell. His love for his country helped him and he fired the cannon. The shell hit the warship <span class="italic text-amber-900 font-semibold">Ocean</span> and sank it. The British Admiral told his warships to leave.</p>
-                    <p>In the evening of March 18, while the sun was going down and the last enemy warships were sailing away, Turkish commanders were very happy. Cevat Paşa, commander of the Çanakkale Fortified Zone, said: <span class="italic font-serif text-lg text-amber-900">"They left our coast. They could not break through. They will not break through."</span></p>
-                </div>
+                <p class="text-xs text-amber-800 mb-4 bg-amber-100 p-2 rounded inline-block">
+                    👉 <strong>Tip:</strong> Click a <u>word</u> for meaning, click the <u>sentence</u> for translation.
+                </p>
 
-                <div class="bg-yellow-200 p-3 rounded-lg transform -rotate-1 inline-block mt-6 shadow-md border border-yellow-300 cursor-pointer hover:scale-105 transition" onclick="speakText('Break through. Make a way through, pass through.')">
-                    <p class="font-bold text-yellow-900 text-sm flex items-center gap-2"><span>📌</span> IDIOM TIME!</p>
-                    <p class="text-sm text-yellow-900"><strong>break through:</strong> make a way through, pass through.</p>
-                </div>
+                <div id="story-container" class="text-gray-800 leading-relaxed text-lg">
+                    </div>
+
             </div>
 
             <div class="space-y-4 mt-8">
@@ -113,16 +171,13 @@
                 </div>
                 <p class="mt-4 italic text-gray-600 border-l-4 border-gray-300 pl-3 cursor-pointer hover:text-blue-600" onclick="speakText('While he was running in the park, he saw a dog.')">Example: "While he <strong>was running</strong> in the park, he saw a dog." (Click to listen)</p>
             </div>
-
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <h3 class="text-lg font-bold text-gray-800 mb-6">1. Fill in the blanks (Watch your spelling!)</h3>
                 <div id="grammar-container" class="space-y-6"></div>
             </div>
-
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <h3 class="text-lg font-bold text-gray-800 mb-2">2. Sentence Scramble</h3>
                 <p class="text-sm text-gray-500 mb-4">Click words in order to build: <em>"He was carrying a heavy shell"</em></p>
-                
                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
                     <div id="scramble-dropzone" class="min-h-[60px] bg-white border-2 border-dashed border-blue-300 rounded-lg mb-4 flex flex-wrap gap-2 p-3 justify-center items-center text-lg font-medium text-blue-800 transition-colors"></div>
                     <div id="scramble-bank" class="flex flex-wrap gap-2 justify-center"></div>
@@ -136,22 +191,16 @@
             <div class="bg-green-50 p-6 rounded-xl border border-green-200 text-center shadow-sm">
                 <h2 class="text-2xl font-bold text-green-800 mb-2">The Story of Nene Hatun</h2>
             </div>
-
             <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                 <h3 class="text-lg font-bold text-gray-800 mb-2">1. Restore History</h3>
                 <p id="timeline-status" class="font-medium text-sm text-green-700 mb-4 bg-green-50 inline-block px-3 py-1 rounded border border-green-200">Start by clicking the 1st event.</p>
-                
                 <div id="timeline-container" class="grid grid-cols-1 gap-3"></div>
-                
                 <div id="timeline-success" class="hidden text-center p-6 bg-gradient-to-r from-green-100 to-green-200 rounded-xl shadow-inner border border-green-300 animate-pulse mt-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-green-600 mb-2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
                     <h3 class="text-xl font-bold text-green-900">Great Job! History Restored.</h3>
                 </div>
             </div>
-
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <h3 class="text-lg font-bold text-gray-800 mb-4">2. Cause & Effect Match</h3>
-                <p class="text-sm text-gray-600 mb-4">Click a <span class="text-orange-600 font-bold">Cause</span> (left) then its <span class="text-blue-600 font-bold">Effect</span> (right).</p>
                 <div class="grid grid-cols-2 gap-4" id="cause-effect-game">
                     <div class="space-y-2" id="col-causes"></div>
                     <div class="space-y-2" id="col-effects"></div>
@@ -162,18 +211,11 @@
         <div id="vocab" class="tab-content space-y-6">
             <div class="grid md:grid-cols-2 gap-6">
                 <div class="bg-purple-50 p-5 rounded-xl shadow-sm border border-purple-100">
-                    <h3 class="text-xl font-bold text-purple-900 mb-4 flex items-center gap-2">
-                        1. Vocabulary Match
-                    </h3>
-                    <p class="text-xs text-purple-600 mb-2">Click to listen</p>
+                    <h3 class="text-xl font-bold text-purple-900 mb-4 flex items-center gap-2">1. Vocabulary Match</h3>
                     <div class="space-y-3" id="vocab-list"></div>
                 </div>
-
                 <div class="bg-pink-50 p-5 rounded-xl shadow-sm border border-pink-100">
-                    <h3 class="text-xl font-bold text-pink-900 mb-4 flex items-center gap-2">
-                        2. Pronunciation Sort
-                    </h3>
-                    <p class="text-sm text-gray-600 mb-4 bg-white p-2 rounded border border-pink-100 italic">How does the -ed ending sound?</p>
+                    <h3 class="text-xl font-bold text-pink-900 mb-4 flex items-center gap-2">2. Pronunciation Sort</h3>
                     <div class="grid grid-cols-3 gap-2 text-center font-bold text-white mb-4 text-sm">
                         <div class="bg-blue-400 rounded p-1">/id/</div>
                         <div class="bg-green-400 rounded p-1">/t/</div>
@@ -182,29 +224,16 @@
                     <div class="space-y-2" id="pronunciation-list"></div>
                 </div>
             </div>
-
             <div class="bg-yellow-50 p-6 rounded-xl border-l-4 border-yellow-400 shadow-sm">
-                <h3 class="text-xl font-bold text-yellow-900 mb-2 flex items-center gap-2">
-                    3. Audio Spelling Bee
-                </h3>
-                <p class="text-yellow-800 mb-4 text-sm">Click the speaker, listen to the word, and type it correctly.</p>
+                <h3 class="text-xl font-bold text-yellow-900 mb-2 flex items-center gap-2">3. Audio Spelling Bee</h3>
                 <div class="flex flex-wrap gap-4" id="spelling-container"></div>
-            </div>
-            
-            <div class="bg-white p-4 rounded-xl border-l-4 border-gray-400 shadow-sm flex gap-4 items-center cursor-pointer hover:bg-gray-50" onclick="speakText('To take one\'s revenge. To hurt or harm someone in return for an injury.')">
-                <div class="bg-gray-200 p-3 rounded-full text-gray-600">⚡</div>
-                <div>
-                    <p class="font-bold text-gray-800 uppercase tracking-wider text-xs mb-1">IDIOM TIME</p>
-                    <p class="text-lg font-bold text-gray-900">"to take one's revenge"</p>
-                    <p class="text-gray-600 text-sm">Definition: to hurt or harm someone in return for an injury.</p>
-                </div>
             </div>
         </div>
 
     </main>
 
     <script>
-        // --- AUDIO ENGINE ---
+        // --- SHARED UTILITIES ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const synth = window.speechSynthesis;
 
@@ -246,12 +275,183 @@
             synth.speak(utterance);
         }
 
+        // --- NEW TRANSLATION ENGINE ---
+
+        // Dictionary for Words
+        const dictionary = {
+            "When": "Ne zaman/dığında", "you": "sen", "visit": "ziyaret etmek", "Gallipoli": "Gelibolu", "can": "-ebilmek", "see": "görmek", "the": "(belirtme)", "huge": "devasa", "statue": "heykel", "of": "-in/-nın", "Seyit": "Seyit", "Onbaşı": "Onbaşı", "shows": "göstermek", "him": "onu", "with": "ile", "a": "bir", "big": "büyük", "shell": "top mermisi", "in": "içinde", "his": "onun", "arms": "kolları", "was": "idi", "an": "bir", "Ottoman": "Osmanlı", "soldier": "asker", "during": "sırasında", "war": "savaş", "Çanakkale": "Çanakkale", "He": "O", "became": "oldu", "After": "Sonra", "years": "yıl", "still": "hâlâ", "serving": "görev yapmak", "Rumeli": "Rumeli", "Mecidiye": "Mecidiye", "Batarya": "Bataryası", "Soldiers": "Askerler", "were": "idiler", "fighting": "savaşmak", "on": "üzerinde", "hills": "tepeler", "and": "ve", "valleys": "vadiler", "under": "altında", "rain": "yağmur", "fire": "ateş", "They": "Onlar", "fired": "ateşledi", "at": "-e/-a", "ship": "gemi", "Queen": "Kraliçe", "Elizabeth": "Elizabeth", "hit": "vurdu", "her": "onu", "enemy": "düşman", "back": "geri", "to": "-e/-a", "killed": "öldürdü", "almost": "neredeyse", "all": "tümü", "Turkish": "Türk", "destroyed": "yok etti", "most": "çoğu", "guns": "silahlar/toplar", "There": "Orada", "dust": "toz", "blood": "kan", "cries": "feryatlar/ağlamalar", "everywhere": "her yerde", "While": "-iken", "commander": "komutan", "walking": "yürümek", "among": "arasında", "dead": "ölü", "saw": "gördü", "stones": "taşlar", "soil": "toprak", "tall": "uzun", "strong": "güçlü", "man": "adam", "helped": "yardım etti", "stand": "ayağa kalkmak", "up": "yukarı", "feet": "ayaklar", "only": "sadece", "one": "bir", "cannon": "top", "good": "iyi", "condition": "durum", "but": "fakat", "it": "o", "didn't": "yapmadı", "work": "çalışmak", "well": "iyi", "moved": "hareket etti", "First": "Önce", "lifted": "kaldırdı", "kg": "kilogram", "help": "yardım", "friend": "arkadaş", "then": "sonra", "put": "koydu", "shoulder": "omuz", "finally": "sonunda", "climbed": "tırmandı", "placed": "yerleştirdi", "His": "Onun", "love": "sevgi", "country": "ülke", "warship": "savaş gemisi", "Ocean": "Ocean (Gemi adı)", "sank": "battı", "British": "İngiliz", "Admiral": "Amiral", "told": "söyledi", "leave": "ayrılmak", "evening": "akşam", "March": "Mart", "sun": "güneş", "going": "gitmek/batmak", "down": "aşağı", "last": "son", "sailing": "denize açılmak", "away": "uzak", "commanders": "komutanlar", "very": "çok", "happy": "mutlu", "Cevat": "Cevat", "Paşa": "Paşa", "Fortified": "Müstahkem", "Zone": "Mevki", "said": "dedi", "left": "terk etti", "our": "bizim", "coast": "kıyı", "could": "-ebilirdi", "not": "değil", "break": "kırmak", "through": "içinden/yarıp geçmek", "will": "-ecek/-acak"
+        };
+
+        // Story Sentences Data
+        const storySentences = [
+            {
+                en: "When you visit Gallipoli, you can see the huge statue of Seyit Onbaşı.",
+                tr: "Gelibolu'yu ziyaret ettiğinizde, Seyit Onbaşı'nın devasa heykelini görebilirsiniz."
+            },
+            {
+                en: "The statue shows him with a big shell in his arms.",
+                tr: "Heykel onu kollarında büyük bir top mermisiyle gösterir."
+            },
+            {
+                en: "Seyit Onbaşı was an Ottoman soldier during the war of Çanakkale.",
+                tr: "Seyit Onbaşı, Çanakkale Savaşı sırasında bir Osmanlı askeriydi."
+            },
+            {
+                en: "He became a soldier in 1909.",
+                tr: "1909 yılında asker oldu."
+            },
+            {
+                en: "After 6 years, he was still serving in Çanakkale Rumeli Mecidiye Batarya in 1915.",
+                tr: "6 yıl sonra, 1915'te hala Çanakkale Rumeli Mecidiye Bataryası'nda görev yapıyordu."
+            },
+            {
+                en: "Soldiers were fighting on hills and valleys under a rain of fire.",
+                tr: "Askerler ateş yağmuru altında tepelerde ve vadilerde savaşıyorlardı."
+            },
+            {
+                en: "They fired shells at the ship Queen Elizabeth and hit her.",
+                tr: "Queen Elizabeth gemisine top mermileri attılar ve onu vurdular."
+            },
+            {
+                en: "After that, the enemy fired back to Mecidiye Batarya, killed almost all of the Turkish soldiers and destroyed most of the guns.",
+                tr: "Bundan sonra düşman Mecidiye Bataryası'na karşılık verdi, Türk askerlerinin neredeyse hepsini öldürdü ve topların çoğunu yok etti."
+            },
+            {
+                en: "There was dust, blood and cries everywhere.",
+                tr: "Her yerde toz, kan ve feryatlar vardı."
+            },
+            {
+                en: "While the batarya commander and a soldier were walking among the dead soldiers, they saw a soldier under stones and soil.",
+                tr: "Batarya komutanı ve bir asker ölü askerlerin arasında yürürken, taşların ve toprağın altında bir asker gördüler."
+            },
+            {
+                en: "He was Seyit Onbaşı.",
+                tr: "O, Seyit Onbaşı'ydı."
+            },
+            {
+                en: "He was a tall and strong man.",
+                tr: "Uzun ve güçlü bir adamdı."
+            },
+            {
+                en: "They helped him to stand up.",
+                tr: "Ayağa kalkmasına yardım ettiler."
+            },
+            {
+                en: "When Seyit Onbaşı was on his feet, he saw that there was only one cannon in good condition, but it didn't work well.",
+                tr: "Seyit Onbaşı ayağa kalktığında, iyi durumda sadece bir top olduğunu ama onun da iyi çalışmadığını gördü."
+            },
+            {
+                en: "Seyit moved.",
+                tr: "Seyit hareket etti."
+            },
+            {
+                en: "First, he lifted the 275 kg shell with the help of his friend, then, put it on his shoulder and finally climbed up to the gun and placed the shell.",
+                tr: "Önce arkadaşının yardımıyla 275 kg'lık mermiyi kaldırdı, sonra omzuna koydu ve nihayet topa tırmanıp mermiyi yerleştirdi."
+            },
+            {
+                en: "His love for his country helped him and he fired the cannon.",
+                tr: "Vatan sevgisi ona yardım etti ve topu ateşledi."
+            },
+            {
+                en: "The shell hit the warship Ocean and sank it.",
+                tr: "Mermi Ocean adlı savaş gemisine isabet etti ve onu batırdı."
+            },
+            {
+                en: "The British Admiral told his warships to leave.",
+                tr: "İngiliz Amiral savaş gemilerine ayrılmalarını söyledi."
+            },
+            {
+                en: "In the evening of March 18, while the sun was going down and the last enemy warships were sailing away, Turkish commanders were very happy.",
+                tr: "18 Mart akşamı, güneş batarken ve son düşman gemileri uzaklaşırken, Türk komutanlar çok mutluydu."
+            },
+            {
+                en: "Cevat Paşa, commander of the Çanakkale Fortified Zone, said: \"They left our coast. They could not break through. They will not break through.\"",
+                tr: "Çanakkale Müstahkem Mevki Komutanı Cevat Paşa şöyle dedi: \"Kıyımızı terk ettiler. Geçemediler. Geçemeyecekler.\""
+            }
+        ];
+
+        function renderStory() {
+            const container = document.getElementById('story-container');
+            container.innerHTML = '';
+
+            storySentences.forEach((item, idx) => {
+                const sWrapper = document.createElement('div');
+                sWrapper.className = 'sentence-wrapper';
+                sWrapper.onclick = () => toggleSentenceTr(idx);
+
+                // English Paragraph
+                const pEn = document.createElement('p');
+                pEn.className = 'mb-1';
+                
+                // Split into words and wrap in span
+                const words = item.en.split(' ');
+                words.forEach(word => {
+                    const cleanWord = word.replace(/[.,":;]/g, ''); // lookup key
+                    const trMeaning = dictionary[cleanWord] || "?";
+                    
+                    const span = document.createElement('span');
+                    span.className = 'interactive-word';
+                    span.textContent = word + ' '; // add space back
+                    span.onclick = (e) => showWordTooltip(e, cleanWord, trMeaning);
+                    pEn.appendChild(span);
+                });
+
+                // Turkish Paragraph (Hidden)
+                const pTr = document.createElement('p');
+                pTr.id = `tr-sent-${idx}`;
+                pTr.className = 'tr-sentence';
+                pTr.textContent = item.tr;
+
+                sWrapper.appendChild(pEn);
+                sWrapper.appendChild(pTr);
+                container.appendChild(sWrapper);
+            });
+        }
+
+        function toggleSentenceTr(idx) {
+            const trEl = document.getElementById(`tr-sent-${idx}`);
+            if(trEl.style.display === 'block') {
+                trEl.style.display = 'none';
+            } else {
+                document.querySelectorAll('.tr-sentence').forEach(el => el.style.display = 'none'); // close others
+                trEl.style.display = 'block';
+            }
+        }
+
+        function showWordTooltip(e, word, meaning) {
+            e.stopPropagation(); // Don't trigger sentence click
+            const tooltip = document.getElementById('word-tooltip');
+            tooltip.textContent = `${word} : ${meaning}`;
+            tooltip.style.display = 'block';
+            
+            // Position calculation
+            const rect = e.target.getBoundingClientRect();
+            const scrollX = window.pageXOffset;
+            const scrollY = window.pageYOffset;
+
+            tooltip.style.left = (rect.left + scrollX + (rect.width / 2) - (tooltip.offsetWidth / 2)) + 'px';
+            tooltip.style.top = (rect.top + scrollY - 30) + 'px';
+
+            // Hide after 2 seconds
+            setTimeout(() => {
+                tooltip.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Initialize Story
+        renderStory();
+
+        // --- TAB & AUDIO LOGIC (Original) ---
+
         function readStory() {
             if(synth.speaking) synth.cancel();
             const btn = document.getElementById('btn-play-story');
             btn.classList.add('speaking-anim');
-            const text = document.getElementById('story-text').innerText;
-            const utterance = new SpeechSynthesisUtterance(text);
+            
+            // Read from data source to ensure smooth reading (HTML spans break flow sometimes)
+            const fullText = storySentences.map(s => s.en).join(" ");
+            const utterance = new SpeechSynthesisUtterance(fullText);
+            
             utterance.lang = 'en-US'; utterance.rate = 0.9;
             utterance.onend = () => btn.classList.remove('speaking-anim');
             synth.speak(utterance);
@@ -279,9 +479,9 @@
             if(tabId === 'vocab') activeBtn.classList.add('bg-purple-500', 'text-white', 'shadow-md');
         }
 
-        // --- 1. READING DATA & LOGIC ---
+        // --- EXERCISES LOGIC ---
         
-        // Quiz Data
+        // Quiz
         const quizData = [
             { q: "Who was Seyit Onbaşı?", opts: ["A British Admiral", "An Ottoman soldier", "A German commander", "A tourist"], a: 1 },
             { q: "What happened when the enemy fired back at Mecidiye Batarya?", opts: ["They missed completely", "They killed almost all soldiers", "They surrendered", "They left the coast"], a: 1 },
@@ -315,7 +515,7 @@
             quizContainer.appendChild(qDiv);
         });
 
-        // True/False Data
+        // True/False
         const tfData = [
             { s: "Seyit Onbaşı served in the Çanakkale war in 1915.", a: true },
             { s: "The statue shows him holding a rifle.", a: false },
@@ -339,18 +539,15 @@
             const parent = btn.parentElement;
             Array.from(parent.children).forEach(b => b.disabled = true);
             if(correctVal === clickedVal) {
-                btn.classList.remove('hover:bg-green-50', 'hover:bg-red-50', 'text-green-600', 'text-red-600', 'border-green-600', 'border-red-600');
                 btn.classList.add('bg-green-600', 'text-white', 'border-green-600', 'correct-anim');
                 playSound('correct');
             } else {
-                btn.classList.remove('hover:bg-green-50', 'hover:bg-red-50', 'text-green-600', 'text-red-600', 'border-green-600', 'border-red-600');
                 btn.classList.add('bg-red-600', 'text-white', 'border-red-600');
                 playSound('wrong');
             }
         }
 
-        // --- 2. GRAMMAR DATA & LOGIC ---
-
+        // Grammar
         const grammarData = [
             { id: 1, pre: "She left home while her baby", answer: "was sleeping", post: "." },
             { id: 2, pre: "Mostly women and elderly people", answer: "were fighting", post: "there." },
@@ -376,30 +573,26 @@
             const val = input.value.trim().toLowerCase();
             if(val === correct) {
                 input.classList.replace('border-gray-300', 'border-green-500');
-                input.classList.replace('border-red-500', 'border-green-500');
                 input.classList.add('bg-green-50');
                 playSound('correct');
             } else {
                 input.classList.replace('border-gray-300', 'border-red-500');
-                input.classList.replace('border-green-500', 'border-red-500');
                 input.classList.add('bg-red-50');
                 playSound('wrong');
             }
         }
 
-        // Scramble Logic
+        // Scramble
         const correctScramble = "He was carrying a heavy shell";
         const scrambledWords = ["heavy", "carrying", "was", "He", "shell", "a"];
         let currentScramble = [];
         const dropzone = document.getElementById('scramble-dropzone');
         const bank = document.getElementById('scramble-bank');
         const feedback = document.getElementById('scramble-feedback');
-
         function initScramble() {
             bank.innerHTML = ''; dropzone.innerHTML = ''; currentScramble = [];
-            feedback.textContent = ''; feedback.className = 'mt-4 font-bold h-6';
+            feedback.textContent = ''; 
             dropzone.classList.remove('border-green-500'); dropzone.classList.add('border-blue-300');
-            
             scrambledWords.forEach(word => {
                 const btn = document.createElement('button');
                 btn.textContent = word;
@@ -439,8 +632,7 @@
         }
         function resetScramble() { initScramble(); }
 
-        // --- 3. TIMELINE DATA & LOGIC ---
-
+        // Timeline
         const timelineEvents = [
             { id: 'a', text: "Nene Hatun's brother got wounded and died.", order: 1 },
             { id: 'd', text: "The Russian Army captured Fort Aziziye.", order: 2 },
@@ -452,9 +644,7 @@
         let currentStep = 1;
         const statusEl = document.getElementById('timeline-status');
         const tlContainer = document.getElementById('timeline-container');
-        
         function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
-
         shuffle(timelineEvents).forEach(ev => {
             const btn = document.createElement('button');
             btn.className = "timeline-item p-3 rounded-lg text-left transition-all duration-300 border bg-white border-gray-200 hover:border-green-400 hover:shadow-sm group";
@@ -470,7 +660,6 @@
                     this.disabled = true;
                     currentStep++; playSound('correct');
                     statusEl.textContent = "Correct! What happened next?";
-                    statusEl.className = "font-medium text-sm text-green-900 mb-4 bg-green-200 inline-block px-3 py-1 rounded border border-green-300";
                     if(currentStep > 6) {
                         document.getElementById('timeline-success').classList.remove('hidden');
                         statusEl.textContent = "All done! History restored.";
@@ -480,14 +669,13 @@
                     statusEl.textContent = "You already did that one!";
                 } else {
                     statusEl.textContent = "Incorrect order. Try again!";
-                    statusEl.className = "font-medium text-sm text-red-800 mb-4 bg-red-100 inline-block px-3 py-1 rounded border border-red-200";
                     playSound('wrong');
                 }
             };
             tlContainer.appendChild(btn);
         });
 
-        // Cause & Effect Logic
+        // Cause & Effect
         const pairs = [
             { c: "The shell hit the ship", e: "The ship sank" },
             { c: "The Russians attacked", e: "Nene Hatun joined the fight" },
@@ -497,10 +685,8 @@
         let selectedCause = null;
         const causes = pairs.map((p, i) => ({txt: p.c, id: i}));
         const effects = pairs.map((p, i) => ({txt: p.e, id: i})).sort(() => Math.random() - 0.5);
-        
         const colC = document.getElementById('col-causes');
         const colE = document.getElementById('col-effects');
-
         causes.forEach(item => {
             const btn = document.createElement('button');
             btn.className = "w-full p-3 bg-orange-50 border border-orange-200 rounded text-sm text-left hover:bg-orange-100 transition";
@@ -513,7 +699,6 @@
             };
             colC.appendChild(btn);
         });
-
         effects.forEach(item => {
             const btn = document.createElement('button');
             btn.className = "w-full p-3 bg-blue-50 border border-blue-200 rounded text-sm text-left hover:bg-blue-100 transition";
@@ -536,25 +721,16 @@
             colE.appendChild(btn);
         });
 
-        // --- 4. VOCAB DATA & LOGIC ---
-        
+        // Vocab
         const vocabList = [
             { word: "Capture", def: "Take into one's possession or control by force" },
             { word: "Unconscious", def: "Not awake and aware of one's environment" },
             { word: "Battlefield", def: "Arena of war" },
             { word: "Martyr", def: "A person who is killed because of his/her beliefs" }
         ];
-        const pronunciationWords = [
-            { word: "Wanted", type: "/id/" }, { word: "Looked", type: "/t/" },
-            { word: "Cleaned", type: "/d/" }, { word: "Decided", type: "/id/" },
-            { word: "Kissed", type: "/t/" }, { word: "Saved", type: "/d/" }
-        ];
-
         const vList = document.getElementById('vocab-list');
         vocabList.forEach(v => {
-            // FIX: Escape apostrophes to prevent JS errors
             const safeDef = v.def.replace(/'/g, "\\'");
-            
             vList.innerHTML += `
                 <div class="bg-white p-3 rounded-lg shadow-sm border border-purple-100 hover:shadow-md transition flex justify-between items-center group cursor-pointer" onclick="speakText('${v.word}. ${safeDef}')">
                     <div><span class="font-bold text-purple-700 block group-hover:text-purple-900">${v.word}</span><span class="text-xs text-gray-600">${v.def}</span></div>
@@ -562,6 +738,12 @@
                 </div>`;
         });
 
+        // Pronunciation
+        const pronunciationWords = [
+            { word: "Wanted", type: "/id/" }, { word: "Looked", type: "/t/" },
+            { word: "Cleaned", type: "/d/" }, { word: "Decided", type: "/id/" },
+            { word: "Kissed", type: "/t/" }, { word: "Saved", type: "/d/" }
+        ];
         const pList = document.getElementById('pronunciation-list');
         pronunciationWords.forEach(w => {
             let color = w.type === '/id/' ? 'bg-blue-100 text-blue-600' : w.type === '/t/' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
@@ -572,7 +754,7 @@
                 </button>`;
         });
 
-        // Spelling Bee Logic
+        // Spelling
         const spellingWords = ["statue", "soldier", "valley", "cannon"];
         const spellCont = document.getElementById('spelling-container');
         spellingWords.forEach(word => {
