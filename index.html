@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>History Heroes & Grammar (Bilingual)</title>
+    <title>History Heroes & Grammar (Bilingual + Audio)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
@@ -32,7 +32,7 @@
 
         .word-move { transition: all 0.2s ease; }
 
-        /* --- NEW STYLES FOR TRANSLATION --- */
+        /* --- INTERACTIVE TEXT STYLES --- */
         .interactive-word {
             cursor: pointer;
             transition: all 0.2s;
@@ -48,13 +48,15 @@
         
         .sentence-wrapper {
             margin-bottom: 1.5rem;
-            padding: 10px;
-            border-radius: 8px;
-            transition: background-color 0.3s;
+            padding: 12px;
+            border-radius: 12px;
+            transition: background-color 0.3s, transform 0.2s;
             cursor: pointer;
+            border: 1px solid transparent;
         }
         .sentence-wrapper:hover {
-            background-color: #fff7ed; /* very light orange */
+            background-color: #fffbeb; /* very light yellow/orange */
+            border-color: #fcd34d;
         }
 
         .tr-sentence {
@@ -72,18 +74,40 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Audio Button in Sentence */
+        .sent-audio-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background-color: #fef3c7;
+            color: #d97706;
+            border-radius: 50%;
+            margin-right: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            border: 1px solid #fcd34d;
+        }
+        .sent-audio-btn:hover {
+            background-color: #f59e0b;
+            color: white;
+            transform: scale(1.1);
+        }
+
         /* Tooltip for words */
         #word-tooltip {
             position: absolute;
             background: #1e293b;
             color: white;
-            padding: 4px 8px;
+            padding: 4px 10px;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 13px;
             pointer-events: none;
             z-index: 50;
             display: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            white-space: nowrap;
         }
         #word-tooltip::after {
             content: '';
@@ -132,14 +156,14 @@
                     <h2 class="text-2xl font-bold text-amber-800">An Unforgettable Hero: Seyit Onbaşı</h2>
                     <div class="flex gap-2">
                         <button onclick="readStory()" id="btn-play-story" class="flex items-center gap-1 px-3 py-1 bg-amber-600 text-white rounded-full hover:bg-amber-700 text-sm font-bold shadow transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg> Listen
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg> Read All
                         </button>
                         <button onclick="stopSpeaking()" class="flex items-center gap-1 px-3 py-1 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 text-sm font-bold shadow transition">Stop</button>
                     </div>
                 </div>
                 
-                <p class="text-xs text-amber-800 mb-4 bg-amber-100 p-2 rounded inline-block">
-                    👉 <strong>Tip:</strong> Click a <u>word</u> for meaning, click the <u>sentence</u> for translation.
+                <p class="text-xs text-amber-800 mb-4 bg-amber-100 p-2 rounded inline-block border border-amber-200">
+                    👉 <strong>Tip:</strong> Click <span class="bg-yellow-200 px-1 rounded">🔊</span> to listen, click a <u>word</u> for meaning, click the <u>sentence</u> for translation.
                 </p>
 
                 <div id="story-container" class="text-gray-800 leading-relaxed text-lg">
@@ -177,7 +201,7 @@
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <h3 class="text-lg font-bold text-gray-800 mb-2">2. Sentence Scramble</h3>
-                <p class="text-sm text-gray-500 mb-4">Click words in order to build: <em>"You can do it:)"</em></p>
+                <p class="text-sm text-gray-500 mb-4">Click words in order to build: <em>"Peace of cake (Sizin için Çocuk oyuncağı)"</em></p>
                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
                     <div id="scramble-dropzone" class="min-h-[60px] bg-white border-2 border-dashed border-blue-300 rounded-lg mb-4 flex flex-wrap gap-2 p-3 justify-center items-center text-lg font-medium text-blue-800 transition-colors"></div>
                     <div id="scramble-bank" class="flex flex-wrap gap-2 justify-center"></div>
@@ -277,12 +301,10 @@
 
         // --- NEW TRANSLATION ENGINE ---
 
-        // Dictionary for Words
         const dictionary = {
             "When": "Ne zaman/dığında", "you": "sen", "visit": "ziyaret etmek", "Gallipoli": "Gelibolu", "can": "-ebilmek", "see": "görmek", "the": "(belirtme)", "huge": "devasa", "statue": "heykel", "of": "-in/-nın", "Seyit": "Seyit", "Onbaşı": "Onbaşı", "shows": "göstermek", "him": "onu", "with": "ile", "a": "bir", "big": "büyük", "shell": "top mermisi", "in": "içinde", "his": "onun", "arms": "kolları", "was": "idi", "an": "bir", "Ottoman": "Osmanlı", "soldier": "asker", "during": "sırasında", "war": "savaş", "Çanakkale": "Çanakkale", "He": "O", "became": "oldu", "After": "Sonra", "years": "yıl", "still": "hâlâ", "serving": "görev yapmak", "Rumeli": "Rumeli", "Mecidiye": "Mecidiye", "Batarya": "Bataryası", "Soldiers": "Askerler", "were": "idiler", "fighting": "savaşmak", "on": "üzerinde", "hills": "tepeler", "and": "ve", "valleys": "vadiler", "under": "altında", "rain": "yağmur", "fire": "ateş", "They": "Onlar", "fired": "ateşledi", "at": "-e/-a", "ship": "gemi", "Queen": "Kraliçe", "Elizabeth": "Elizabeth", "hit": "vurdu", "her": "onu", "enemy": "düşman", "back": "geri", "to": "-e/-a", "killed": "öldürdü", "almost": "neredeyse", "all": "tümü", "Turkish": "Türk", "destroyed": "yok etti", "most": "çoğu", "guns": "silahlar/toplar", "There": "Orada", "dust": "toz", "blood": "kan", "cries": "feryatlar/ağlamalar", "everywhere": "her yerde", "While": "-iken", "commander": "komutan", "walking": "yürümek", "among": "arasında", "dead": "ölü", "saw": "gördü", "stones": "taşlar", "soil": "toprak", "tall": "uzun", "strong": "güçlü", "man": "adam", "helped": "yardım etti", "stand": "ayağa kalkmak", "up": "yukarı", "feet": "ayaklar", "only": "sadece", "one": "bir", "cannon": "top", "good": "iyi", "condition": "durum", "but": "fakat", "it": "o", "didn't": "yapmadı", "work": "çalışmak", "well": "iyi", "moved": "hareket etti", "First": "Önce", "lifted": "kaldırdı", "kg": "kilogram", "help": "yardım", "friend": "arkadaş", "then": "sonra", "put": "koydu", "shoulder": "omuz", "finally": "sonunda", "climbed": "tırmandı", "placed": "yerleştirdi", "His": "Onun", "love": "sevgi", "country": "ülke", "warship": "savaş gemisi", "Ocean": "Ocean (Gemi adı)", "sank": "battı", "British": "İngiliz", "Admiral": "Amiral", "told": "söyledi", "leave": "ayrılmak", "evening": "akşam", "March": "Mart", "sun": "güneş", "going": "gitmek/batmak", "down": "aşağı", "last": "son", "sailing": "denize açılmak", "away": "uzak", "commanders": "komutanlar", "very": "çok", "happy": "mutlu", "Cevat": "Cevat", "Paşa": "Paşa", "Fortified": "Müstahkem", "Zone": "Mevki", "said": "dedi", "left": "terk etti", "our": "bizim", "coast": "kıyı", "could": "-ebilirdi", "not": "değil", "break": "kırmak", "through": "içinden/yarıp geçmek", "will": "-ecek/-acak"
         };
 
-        // Story Sentences Data
         const storySentences = [
             {
                 en: "When you visit Gallipoli, you can see the huge statue of Seyit Onbaşı.",
@@ -379,24 +401,38 @@
                 sWrapper.className = 'sentence-wrapper';
                 sWrapper.onclick = () => toggleSentenceTr(idx);
 
-                // English Paragraph
                 const pEn = document.createElement('p');
-                pEn.className = 'mb-1';
+                pEn.className = 'flex items-start mb-1';
                 
-                // Split into words and wrap in span
+                // Audio Button for Sentence
+                const audioBtn = document.createElement('button');
+                audioBtn.innerHTML = '🔊';
+                audioBtn.className = 'sent-audio-btn flex-shrink-0';
+                audioBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    speakText(item.en);
+                    audioBtn.classList.add('animate-ping');
+                    setTimeout(() => audioBtn.classList.remove('animate-ping'), 1000);
+                };
+
+                // Text container
+                const textSpan = document.createElement('span');
+                
                 const words = item.en.split(' ');
                 words.forEach(word => {
-                    const cleanWord = word.replace(/[.,":;]/g, ''); // lookup key
+                    const cleanWord = word.replace(/[.,":;]/g, ''); 
                     const trMeaning = dictionary[cleanWord] || "?";
                     
                     const span = document.createElement('span');
                     span.className = 'interactive-word';
-                    span.textContent = word + ' '; // add space back
+                    span.textContent = word + ' '; 
                     span.onclick = (e) => showWordTooltip(e, cleanWord, trMeaning);
-                    pEn.appendChild(span);
+                    textSpan.appendChild(span);
                 });
 
-                // Turkish Paragraph (Hidden)
+                pEn.appendChild(audioBtn);
+                pEn.appendChild(textSpan);
+
                 const pTr = document.createElement('p');
                 pTr.id = `tr-sent-${idx}`;
                 pTr.className = 'tr-sentence';
@@ -413,45 +449,39 @@
             if(trEl.style.display === 'block') {
                 trEl.style.display = 'none';
             } else {
-                document.querySelectorAll('.tr-sentence').forEach(el => el.style.display = 'none'); // close others
+                document.querySelectorAll('.tr-sentence').forEach(el => el.style.display = 'none'); 
                 trEl.style.display = 'block';
             }
         }
 
         function showWordTooltip(e, word, meaning) {
-            e.stopPropagation(); // Don't trigger sentence click
+            e.stopPropagation(); 
             const tooltip = document.getElementById('word-tooltip');
             tooltip.textContent = `${word} : ${meaning}`;
             tooltip.style.display = 'block';
             
-            // Position calculation
             const rect = e.target.getBoundingClientRect();
             const scrollX = window.pageXOffset;
             const scrollY = window.pageYOffset;
 
             tooltip.style.left = (rect.left + scrollX + (rect.width / 2) - (tooltip.offsetWidth / 2)) + 'px';
-            tooltip.style.top = (rect.top + scrollY - 30) + 'px';
+            tooltip.style.top = (rect.top + scrollY - 35) + 'px';
 
-            // Hide after 2 seconds
             setTimeout(() => {
                 tooltip.style.display = 'none';
             }, 3000);
         }
         
-        // Initialize Story
         renderStory();
 
-        // --- TAB & AUDIO LOGIC (Original) ---
+        // --- TAB & AUDIO LOGIC ---
 
         function readStory() {
             if(synth.speaking) synth.cancel();
             const btn = document.getElementById('btn-play-story');
             btn.classList.add('speaking-anim');
-            
-            // Read from data source to ensure smooth reading (HTML spans break flow sometimes)
             const fullText = storySentences.map(s => s.en).join(" ");
             const utterance = new SpeechSynthesisUtterance(fullText);
-            
             utterance.lang = 'en-US'; utterance.rate = 0.9;
             utterance.onend = () => btn.classList.remove('speaking-anim');
             synth.speak(utterance);
@@ -481,12 +511,15 @@
 
         // --- EXERCISES LOGIC ---
         
-        // Quiz
+        // UPDATED QUIZ QUESTIONS
         const quizData = [
-            { q: "Who was Seyit Onbaşı?", opts: ["A British Admiral", "An Ottoman soldier", "A German commander", "A tourist"], a: 1 },
-            { q: "What happened when the enemy fired back at Mecidiye Batarya?", opts: ["They missed completely", "They killed almost all soldiers", "They surrendered", "They left the coast"], a: 1 },
-            { q: "How much did the shell weigh?", opts: ["100 kg", "275 kg", "50 kg", "500 kg"], a: 1 },
-            { q: "What happened to the warship 'Ocean'?", opts: ["It broke through", "It captured the fort", "It sank", "It sailed away safely"], a: 2 }
+            { q: "Who was Seyit Onbaşı?", opts: ["An Ottoman soldier", "A British Admiral", "A school teacher", "A tourist in Gallipoli"], a: 0 },
+            { q: "What happened when the enemy fired back?", opts: ["They killed almost all soldiers", "They missed the target", "They surrendered immediately", "They ran away scared"], a: 0 },
+            { q: "What were the commander and a soldier doing when they found Seyit?", opts: ["Walking among the dead soldiers", "Firing the cannons", "Eating dinner", "Sleeping in the tent"], a: 0 },
+            { q: "What was Seyit Onbaşı like?", opts: ["Short and weak", "Tall and strong", "Old and tired", "Young and fearful"], a: 1 },
+            { q: "How many cannons were in good condition?", opts: ["Five", "Ten", "None", "Only one"], a: 3 },
+            { q: "Who fired the cannon?", opts: ["The Commander", "Seyit Onbaşı", "The British Admiral", "The soldier's friend"], a: 1 },
+            { q: "What was happening when the sun was going down?", opts: ["The last enemy warships were sailing away", "The battle was just starting", "It started to rain heavily", "More enemy ships arrived"], a: 0 }
         ];
         const quizContainer = document.getElementById('quiz-container');
         quizData.forEach((item, idx) => {
@@ -784,3 +817,4 @@
     </script>
 </body>
 </html>
+
