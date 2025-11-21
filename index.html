@@ -2,498 +2,603 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SpeakEasy - Debug Mode</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Heroes & Grammar</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
-
-        body {
-            font-family: 'Nunito', sans-serif;
-            background-color: #000000;
-            color: #facc15;
-            overscroll-behavior: none;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .tab-content { display: none; animation: fadeIn 0.5s; }
+        .tab-content.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .glass {
-            background: rgba(20, 20, 20, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(250, 204, 21, 0.3);
-            box-shadow: 0 8px 32px 0 rgba(250, 204, 21, 0.1);
+        .correct-anim { animation: bounce 0.5s; }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
 
-        .glass-panel {
-            background: rgba(40, 40, 40, 0.6);
-            border: 1px solid rgba(250, 204, 21, 0.2);
+        /* Speaking Animation */
+        .speaking-anim {
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(251, 146, 60, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 146, 60, 0); }
         }
 
-        .card-completed {
-            border: 1px solid rgba(34, 197, 94, 0.5) !important;
-            background: rgba(34, 197, 94, 0.1) !important;
-        }
-
-        /* Confetti Animation */
-        .confetti {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background-color: #facc15;
-            animation: fall linear forwards;
-            z-index: 9999;
-        }
-        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
-
-        .nav-item.active {
-            color: #facc15;
-            background-color: rgba(255,255,255,0.1);
-            border: 1px solid rgba(250, 204, 21, 0.3);
-        }
-        .nav-item.active i { transform: scale(1.1); }
-        select option { background-color: #000000; color: #facc15; }
+        /* Scramble Word Animation */
+        .word-move { transition: all 0.2s ease; }
     </style>
 </head>
-<body class="h-[100dvh] w-full md:flex md:items-center md:justify-center md:p-8 overflow-hidden text-yellow-400">
+<body class="bg-gray-100 min-h-screen pb-20">
 
-    <div class="glass w-full h-full md:h-[85vh] md:max-w-5xl md:rounded-3xl overflow-hidden flex flex-col md:flex-row relative">
-        
-        <aside class="hidden md:flex w-64 bg-black/20 flex-col border-r border-yellow-500/20">
-            <div class="p-6">
-                <h1 class="text-3xl font-extrabold text-yellow-400 tracking-tight"><i class="fas fa-comment-dots mr-2"></i>SpeakEasy</h1>
-                <p class="text-yellow-200 text-sm mt-1">Master Your Accent</p>
-            </div>
-            <nav class="flex-1 overflow-y-auto px-4 space-y-2">
-                <button onclick="switchTab('challenge')" id="btn-challenge-desktop" class="w-full text-left px-4 py-3 rounded-xl text-yellow-400 font-semibold transition-all bg-yellow-500/20 hover:bg-yellow-500/30 shadow-sm border border-yellow-500/30">
-                    <i class="fas fa-trophy w-6"></i> Challenge Mode
-                </button>
-                <button onclick="switchTab('freeplay')" id="btn-freeplay-desktop" class="w-full text-left px-4 py-3 rounded-xl text-yellow-200/80 hover:text-yellow-400 hover:bg-white/10 transition-all">
-                    <i class="fas fa-keyboard w-6"></i> Free Play (TTS)
-                </button>
-                <div class="mt-6 px-4">
-                    <div class="text-xs uppercase font-bold text-yellow-600 mb-2">Your Stats</div>
-                    <div class="text-2xl font-bold text-white" id="stats-count">0 / 120</div>
-                </div>
-            </nav>
-        </aside>
+    <header class="bg-white p-6 text-center shadow-sm border-b border-gray-200 sticky top-0 z-20">
+        <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800 tracking-tight mb-1">History Heroes & Grammar</h1>
+        <p class="text-gray-500 text-sm md:text-base">Interactive Lesson: Seyit Onbaşı & Nene Hatun</p>
+    </header>
 
-        <main class="flex-1 relative overflow-hidden flex flex-col h-full">
+    <nav class="sticky top-[88px] z-10 bg-gray-100 pt-2 pb-4 px-2">
+        <div class="flex flex-wrap justify-center gap-2">
+            <button onclick="switchTab('reading')" id="btn-reading" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-full font-bold transition shadow-sm bg-orange-500 text-white">
+                Reading
+            </button>
+            <button onclick="switchTab('grammar')" id="btn-grammar" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-full font-bold transition bg-white text-blue-600 hover:bg-blue-50">
+                Grammar
+            </button>
+            <button onclick="switchTab('timeline')" id="btn-timeline" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-full font-bold transition bg-white text-green-600 hover:bg-green-50">
+                Story Order
+            </button>
+            <button onclick="switchTab('vocab')" id="btn-vocab" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-full font-bold transition bg-white text-purple-600 hover:bg-purple-50">
+                Vocab
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-3xl mx-auto p-4">
+
+        <div id="reading" class="tab-content active space-y-6">
             
-            <header class="md:hidden p-4 flex justify-between items-center bg-black/40 backdrop-blur-sm border-b border-yellow-500/20 z-20">
-                <div class="flex items-center">
-                    <i class="fas fa-comment-dots text-yellow-400 text-xl mr-2"></i>
-                    <h1 class="text-lg font-extrabold text-yellow-400 tracking-tight">SpeakEasy</h1>
-                </div>
-                <div class="bg-yellow-500/20 px-3 py-1 rounded-full border border-yellow-500/30 flex items-center">
-                    <i class="fas fa-star text-yellow-400 text-xs mr-2"></i>
-                    <span id="mobile-stats-count" class="text-xs font-bold text-white">0/120</span>
-                </div>
-            </header>
-
-            <div id="browser-warning" class="hidden bg-red-500 text-white px-4 py-2 text-center text-sm font-bold z-30">
-                Use Google Chrome on Android or Desktop.
-            </div>
-
-            <div id="view-challenge" class="flex-1 flex flex-col p-4 md:p-10 overflow-y-auto pb-24 md:pb-10">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                    <h2 class="text-xl md:text-2xl font-bold text-yellow-400">Practice Challenges</h2>
-                    <select id="category-select" class="w-full md:w-auto bg-black text-yellow-400 border border-yellow-500/50 rounded-xl px-4 py-3 font-bold shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-300 cursor-pointer"></select>
-                </div>
-
-                <div id="cards-container" class="grid grid-cols-1 gap-3 mb-8"></div>
-
-                <div id="practice-area" class="hidden flex-1 flex flex-col items-center pt-4">
-                    <button onclick="backToGrid()" class="self-start flex items-center text-yellow-400 mb-6 bg-yellow-500/10 border border-yellow-500/30 px-4 py-2 rounded-full hover:bg-yellow-500/20 backdrop-blur-md">
-                        <i class="fas fa-arrow-left mr-2"></i> Back
-                    </button>
-                    
-                    <div class="glass-panel w-full max-w-2xl p-6 md:p-8 rounded-3xl shadow-xl text-center relative flex flex-col items-center">
-                        <span class="md:absolute md:top-4 md:right-4 text-black bg-yellow-400 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide mb-4 md:mb-0" id="practice-tag">Tag</span>
-                        <h3 class="text-yellow-600 text-xs uppercase tracking-wider font-bold mb-4 md:mt-2">Target Phrase</h3>
-                        <p id="target-text" class="text-2xl md:text-4xl font-extrabold text-yellow-300 mb-6 leading-tight px-2">...</p>
-
-                        <div class="flex items-center justify-center gap-6 mb-8 mt-8">
-                            <button onclick="speakTarget()" class="w-14 h-14 rounded-full bg-yellow-500/20 border border-yellow-500 text-yellow-400 hover:bg-yellow-500/40 shadow-md transition-all flex items-center justify-center active:scale-95">
-                                <i class="fas fa-volume-up text-xl"></i>
-                            </button>
-                            
-                            <button onclick="toggleRecording()" id="record-btn" class="w-20 h-20 rounded-full bg-red-600 text-white shadow-xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center relative z-10 border-4 border-black/30">
-                                <i class="fas fa-microphone text-3xl" id="mic-icon"></i>
-                            </button>
-                        </div>
-
-                        <div class="w-full border-t border-yellow-500/20 pt-6">
-                            <p class="text-xs text-yellow-600 mb-2 font-bold uppercase">You said:</p>
-                            <p id="spoken-text" class="text-lg md:text-xl text-yellow-200 italic min-h-[2rem]">Tap mic & speak...</p>
-                            <div id="feedback-msg" class="mt-3 font-bold text-lg h-8 transition-all"></div>
-                        </div>
-                        
-                        <div class="w-full mt-4 bg-black border border-gray-800 p-2 rounded text-left">
-                            <p class="text-xs text-gray-500 uppercase font-bold mb-1">Debug Log (Tell me what appears here):</p>
-                            <div id="debug-console" class="text-xs text-green-400 font-mono h-16 overflow-y-auto">Waiting...</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="view-freeplay" class="hidden flex-1 flex flex-col p-4 md:p-10 h-full pb-24 md:pb-10">
-                <h2 class="text-xl md:text-2xl font-bold text-yellow-400 mb-4 md:mb-6">Text-to-Speech</h2>
-                <div class="glass-panel p-6 rounded-3xl shadow-lg flex-1 flex flex-col">
-                    <textarea id="free-text" class="w-full flex-1 bg-transparent border-none focus:ring-0 text-xl md:text-2xl text-yellow-300 resize-none placeholder-yellow-700/50" placeholder="Type anything here..."></textarea>
-                    <div class="flex flex-col gap-4 mt-4 border-t border-yellow-500/20 pt-4">
-                        <div class="w-full">
-                            <div class="bg-black/40 rounded-xl border border-yellow-500/30 h-12 flex items-center px-4 justify-between">
-                                <span class="text-xs font-bold text-yellow-600 mr-3 uppercase">Speed</span>
-                                <input type="range" id="rate" min="0.5" max="2" value="1" step="0.1" oninput="updateRateLabel(this.value)" class="flex-1 h-2 bg-yellow-900 rounded-lg appearance-none cursor-pointer accent-yellow-400">
-                                <span id="rate-value" class="text-xs font-bold text-yellow-400 ml-3 w-8 text-right">1.0x</span>
-                            </div>
-                        </div>
-                        <button onclick="speakFreeText()" class="w-full py-4 bg-yellow-500 hover:bg-yellow-400 active:bg-yellow-600 text-black font-bold rounded-xl shadow-md active:scale-[0.98] transition-transform flex items-center justify-center text-lg">
-                            <i class="fas fa-play mr-2"></i> Speak It
+            <div class="bg-amber-50 p-6 rounded-xl border-l-8 border-amber-500 shadow-sm relative">
+                <div class="flex justify-between items-center mb-4 border-b border-amber-200 pb-2">
+                    <h2 class="text-2xl font-bold text-amber-800">An Unforgettable Hero: Seyit Onbaşı</h2>
+                    <div class="flex gap-2">
+                        <button onclick="readStory()" id="btn-play-story" class="flex items-center gap-1 px-3 py-1 bg-amber-600 text-white rounded-full hover:bg-amber-700 text-sm font-bold shadow transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg> Listen
                         </button>
+                        <button onclick="stopSpeaking()" class="flex items-center gap-1 px-3 py-1 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 text-sm font-bold shadow transition">Stop</button>
                     </div>
                 </div>
-            </div>
-        </main>
+                
+                <div id="story-text" class="prose text-gray-800 leading-relaxed space-y-4 text-lg">
+                    <p>When you visit Gallipoli, you can see the huge statue of Seyit Onbaşı. The statue shows him with a big shell in his arms. Seyit Onbaşı was an Ottoman soldier during the war of Çanakkale. He became a soldier in 1909. After 6 years, he was still serving in Çanakkale Rumeli Mecidiye Batarya in 1915. Soldiers were fighting on hills and valleys under a rain of fire. They fired shells at the ship Queen Elizabeth and hit her.</p>
+                    <p>After that, the enemy fired back to Mecidiye Batarya, killed almost all of the Turkish soldiers and destroyed most of the guns. There was dust, blood and cries everywhere. While the batarya commander and a soldier were walking among the dead soldiers, they saw a soldier under stones and soil. He was Seyit Onbaşı. He was a tall and strong man. They helped him to stand up.</p>
+                    <p>When Seyit Onbaşı was on his feet, he saw that there was only one cannon in good condition, but it didn't work well. Seyit moved. First, he lifted the <span class="font-bold text-amber-700 bg-amber-100 px-1 rounded">275 kg shell</span> with the help of his friend, then, put it on his shoulder and finally climbed up to the gun and placed the shell. His love for his country helped him and he fired the cannon. The shell hit the warship <span class="italic text-amber-900 font-semibold">Ocean</span> and sank it. The British Admiral told his warships to leave.</p>
+                    <p>In the evening of March 18, while the sun was going down and the last enemy warships were sailing away, Turkish commanders were very happy. Cevat Paşa, commander of the Çanakkale Fortified Zone, said: <span class="italic font-serif text-lg text-amber-900">"They left our coast. They could not break through. They will not break through."</span></p>
+                </div>
 
-        <nav class="md:hidden fixed bottom-0 left-0 w-full bg-black/90 backdrop-blur-xl border-t border-yellow-500/30 flex justify-around items-center pb-safe pt-2 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
-            <button onclick="switchTab('challenge')" id="nav-mobile-challenge" class="nav-item active flex flex-col items-center justify-center p-3 w-1/2 text-yellow-600 transition-all rounded-xl mx-2">
-                <i class="fas fa-trophy text-xl mb-1 transition-transform"></i>
-                <span class="text-xs font-bold">Practice</span>
-            </button>
-            <button onclick="switchTab('freeplay')" id="nav-mobile-freeplay" class="nav-item flex flex-col items-center justify-center p-3 w-1/2 text-yellow-600 transition-all rounded-xl mx-2">
-                <i class="fas fa-keyboard text-xl mb-1 transition-transform"></i>
-                <span class="text-xs font-bold">Free Play</span>
-            </button>
-        </nav>
-    </div>
+                <div class="bg-yellow-200 p-3 rounded-lg transform -rotate-1 inline-block mt-6 shadow-md border border-yellow-300 cursor-pointer hover:scale-105 transition" onclick="speakText('Break through. Make a way through, pass through.')">
+                    <p class="font-bold text-yellow-900 text-sm flex items-center gap-2"><span>📌</span> IDIOM TIME!</p>
+                    <p class="text-sm text-yellow-900"><strong>break through:</strong> make a way through, pass through.</p>
+                </div>
+            </div>
+
+            <div class="space-y-4 mt-8">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2 border-b pb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/></svg>
+                    1. Comprehension Check
+                </h3>
+                <div id="quiz-container" class="space-y-4"></div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mt-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">2. True or False Challenge</h3>
+                <div id="tf-container" class="grid gap-3"></div>
+            </div>
+        </div>
+
+        <div id="grammar" class="tab-content space-y-6">
+            <div class="bg-blue-50 p-6 rounded-xl border-l-8 border-blue-500 shadow-sm">
+                <h2 class="text-2xl font-bold text-blue-800 mb-4">Past Continuous Tense</h2>
+                <p class="mb-4 text-gray-700">We use this tense for actions happening at a specific time in the past.</p>
+                <div class="bg-white p-4 rounded-lg border border-blue-200 font-mono text-sm md:text-base shadow-sm">
+                    <p class="text-green-600 mb-2">I / He / She / It + <strong class="bg-green-100 px-1 rounded">was</strong> + verb<strong>-ing</strong></p>
+                    <p class="text-purple-600">We / You / They + <strong class="bg-purple-100 px-1 rounded">were</strong> + verb<strong>-ing</strong></p>
+                </div>
+                <p class="mt-4 italic text-gray-600 border-l-4 border-gray-300 pl-3 cursor-pointer hover:text-blue-600" onclick="speakText('While he was running in the park, he saw a dog.')">Example: "While he <strong>was running</strong> in the park, he saw a dog." (Click to listen)</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-lg font-bold text-gray-800 mb-6">1. Fill in the blanks (Watch your spelling!)</h3>
+                <div id="grammar-container" class="space-y-6"></div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-lg font-bold text-gray-800 mb-2">2. Sentence Scramble</h3>
+                <p class="text-sm text-gray-500 mb-4">Click words in order to build: <em>"He was carrying a heavy shell"</em></p>
+                
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+                    <div id="scramble-dropzone" class="min-h-[60px] bg-white border-2 border-dashed border-blue-300 rounded-lg mb-4 flex flex-wrap gap-2 p-3 justify-center items-center text-lg font-medium text-blue-800 transition-colors"></div>
+                    <div id="scramble-bank" class="flex flex-wrap gap-2 justify-center"></div>
+                    <div id="scramble-feedback" class="mt-4 font-bold h-6"></div>
+                    <button onclick="resetScramble()" class="mt-2 text-xs text-gray-400 underline hover:text-gray-600">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="timeline" class="tab-content space-y-6">
+            <div class="bg-green-50 p-6 rounded-xl border border-green-200 text-center shadow-sm">
+                <h2 class="text-2xl font-bold text-green-800 mb-2">The Story of Nene Hatun</h2>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-lg font-bold text-gray-800 mb-2">1. Restore History</h3>
+                <p id="timeline-status" class="font-medium text-sm text-green-700 mb-4 bg-green-50 inline-block px-3 py-1 rounded border border-green-200">Start by clicking the 1st event.</p>
+                
+                <div id="timeline-container" class="grid grid-cols-1 gap-3"></div>
+                
+                <div id="timeline-success" class="hidden text-center p-6 bg-gradient-to-r from-green-100 to-green-200 rounded-xl shadow-inner border border-green-300 animate-pulse mt-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-green-600 mb-2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                    <h3 class="text-xl font-bold text-green-900">Great Job! History Restored.</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">2. Cause & Effect Match</h3>
+                <p class="text-sm text-gray-600 mb-4">Click a <span class="text-orange-600 font-bold">Cause</span> (left) then its <span class="text-blue-600 font-bold">Effect</span> (right).</p>
+                <div class="grid grid-cols-2 gap-4" id="cause-effect-game">
+                    <div class="space-y-2" id="col-causes"></div>
+                    <div class="space-y-2" id="col-effects"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="vocab" class="tab-content space-y-6">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-purple-50 p-5 rounded-xl shadow-sm border border-purple-100">
+                    <h3 class="text-xl font-bold text-purple-900 mb-4 flex items-center gap-2">
+                        1. Vocabulary Match
+                    </h3>
+                    <p class="text-xs text-purple-600 mb-2">Click to listen</p>
+                    <div class="space-y-3" id="vocab-list"></div>
+                </div>
+
+                <div class="bg-pink-50 p-5 rounded-xl shadow-sm border border-pink-100">
+                    <h3 class="text-xl font-bold text-pink-900 mb-4 flex items-center gap-2">
+                        2. Pronunciation Sort
+                    </h3>
+                    <p class="text-sm text-gray-600 mb-4 bg-white p-2 rounded border border-pink-100 italic">How does the -ed ending sound?</p>
+                    <div class="grid grid-cols-3 gap-2 text-center font-bold text-white mb-4 text-sm">
+                        <div class="bg-blue-400 rounded p-1">/id/</div>
+                        <div class="bg-green-400 rounded p-1">/t/</div>
+                        <div class="bg-red-400 rounded p-1">/d/</div>
+                    </div>
+                    <div class="space-y-2" id="pronunciation-list"></div>
+                </div>
+            </div>
+
+            <div class="bg-yellow-50 p-6 rounded-xl border-l-4 border-yellow-400 shadow-sm">
+                <h3 class="text-xl font-bold text-yellow-900 mb-2 flex items-center gap-2">
+                    3. Audio Spelling Bee
+                </h3>
+                <p class="text-yellow-800 mb-4 text-sm">Click the speaker, listen to the word, and type it correctly.</p>
+                <div class="flex flex-wrap gap-4" id="spelling-container"></div>
+            </div>
+            
+            <div class="bg-white p-4 rounded-xl border-l-4 border-gray-400 shadow-sm flex gap-4 items-center cursor-pointer hover:bg-gray-50" onclick="speakText('To take one\'s revenge. To hurt or harm someone in return for an injury.')">
+                <div class="bg-gray-200 p-3 rounded-full text-gray-600">⚡</div>
+                <div>
+                    <p class="font-bold text-gray-800 uppercase tracking-wider text-xs mb-1">IDIOM TIME</p>
+                    <p class="text-lg font-bold text-gray-900">"to take one's revenge"</p>
+                    <p class="text-gray-600 text-sm">Definition: to hurt or harm someone in return for an injury.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
 
     <script>
-        const practiceData = {
-            'Minimal Pairs': [
-                { id: 1, text: "Ship vs Sheep", phrase: "The sheep is on the ship.", hint: "Short 'i' vs Long 'ee'" },
-                { id: 2, text: "Bat vs Bet", phrase: "I bet on the bat.", hint: "Open 'a' vs Short 'e'" },
-                { id: 3, text: "Fan vs Van", phrase: "The fan is in the van.", hint: "Soft 'f' vs Vibrating 'v'" },
-                { id: 4, text: "Think vs Sink", phrase: "I think I will sink.", hint: "Tongue out 'th' vs Sibilant 's'" },
-                { id: 5, text: "Bit vs Beet", phrase: "A little bit of beet.", hint: "Short I vs Long E" }
-            ],
-            'Tongue Twisters': [
-                { id: 51, text: "Seashells", phrase: "She sells seashells by the seashore.", hint: "Watch your 'sh' and 's' sounds." }
-            ],
-            'Common Mistakes': [
-                { id: 71, text: "Comfortable", phrase: "This chair is very comfortable.", hint: "Pronounced 'Comf-ter-bull'" }
-            ]
-        };
+        // --- AUDIO ENGINE ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const synth = window.speechSynthesis;
 
-        let currentCategory = 'Minimal Pairs';
-        let currentTarget = null;
-        let isRecording = false;
-        let recognition;
-        let voices = [];
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
 
-        // DOM
-        const viewChallenge = document.getElementById('view-challenge');
-        const viewFree = document.getElementById('view-freeplay');
-        const btnChallenge = document.getElementById('btn-challenge-desktop');
-        const btnFree = document.getElementById('btn-freeplay-desktop');
-        const navMobileChallenge = document.getElementById('nav-mobile-challenge');
-        const navMobileFree = document.getElementById('nav-mobile-freeplay');
-        const categorySelect = document.getElementById('category-select');
-        const cardsContainer = document.getElementById('cards-container');
-        const practiceArea = document.getElementById('practice-area');
-        const targetDisplay = document.getElementById('target-text');
-        const spokenDisplay = document.getElementById('spoken-text');
-        const feedbackMsg = document.getElementById('feedback-msg');
-        const recordBtn = document.getElementById('record-btn');
-        const practiceTag = document.getElementById('practice-tag');
-        const statsCount = document.getElementById('stats-count');
-        const mobileStatsCount = document.getElementById('mobile-stats-count');
-        const debugConsole = document.getElementById('debug-console');
-
-        function log(msg) {
-            const time = new Date().toLocaleTimeString();
-            debugConsole.innerHTML += `[${time}] ${msg}<br>`;
-            debugConsole.scrollTop = debugConsole.scrollHeight;
-            console.log(msg);
-        }
-
-        function getProgress() {
-            const stored = localStorage.getItem('speakeasy_progress');
-            return stored ? JSON.parse(stored) : [];
-        }
-        function saveProgress(id) {
-            const progress = getProgress();
-            if (!progress.includes(id)) {
-                progress.push(id);
-                localStorage.setItem('speakeasy_progress', JSON.stringify(progress));
-                updateStats();
-            }
-        }
-        function updateStats() {
-            const progress = getProgress();
-            const text = `${progress.length} / 120`;
-            statsCount.innerText = text;
-            mobileStatsCount.innerText = text;
-        }
-
-        window.onload = () => {
-            log("App Started");
-            initSpeechRecognition();
-            loadVoices();
-            initCategories();
-            renderCards();
-            updateStats();
-            window.addEventListener('resize', () => {
-                document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
-            });
-        };
-
-        function switchTab(tab) {
-            if (tab === 'challenge') {
-                viewChallenge.classList.remove('hidden');
-                viewFree.classList.add('hidden');
-                btnChallenge.classList.replace('text-yellow-200/80', 'text-yellow-400');
-                btnChallenge.classList.add('bg-yellow-500/20', 'shadow-sm', 'border-yellow-500/30');
-                btnFree.classList.replace('text-yellow-400', 'text-yellow-200/80');
-                btnFree.classList.remove('bg-yellow-500/20', 'shadow-sm', 'border-yellow-500/30');
-                navMobileChallenge.classList.add('active');
-                navMobileFree.classList.remove('active');
-            } else {
-                viewChallenge.classList.add('hidden');
-                viewFree.classList.remove('hidden');
-                btnFree.classList.replace('text-yellow-200/80', 'text-yellow-400');
-                btnFree.classList.add('bg-yellow-500/20', 'shadow-sm', 'border-yellow-500/30');
-                btnChallenge.classList.replace('text-yellow-400', 'text-yellow-200/80');
-                btnChallenge.classList.remove('bg-yellow-500/20', 'shadow-sm', 'border-yellow-500/30');
-                navMobileFree.classList.add('active');
-                navMobileChallenge.classList.remove('active');
+            if (type === 'correct') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                gainNode.gain.setValueAtTime(0.2, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                osc.start(now); osc.stop(now + 0.5);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(100, now + 0.3);
+                gainNode.gain.setValueAtTime(0.2, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            } else if (type === 'click') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(400, now);
+                gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'success') {
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                    const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+                    o.connect(g); g.connect(audioCtx.destination);
+                    o.frequency.value = freq;
+                    g.gain.setValueAtTime(0.1, now + i*0.1); g.gain.exponentialRampToValueAtTime(0.001, now + i*0.1 + 0.4);
+                    o.start(now + i*0.1); o.stop(now + i*0.1 + 0.4);
+                });
             }
         }
 
-        function initCategories() {
-            Object.keys(practiceData).forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat;
-                option.textContent = cat;
-                categorySelect.appendChild(option);
-            });
-            categorySelect.addEventListener('change', (e) => {
-                currentCategory = e.target.value;
-                renderCards();
-                backToGrid();
-            });
-        }
-
-        function renderCards() {
-            cardsContainer.innerHTML = '';
-            const completed = getProgress();
-            practiceData[currentCategory].forEach(item => {
-                const isDone = completed.includes(item.id);
-                const card = document.createElement('div');
-                const baseClass = "glass-panel p-5 rounded-2xl cursor-pointer hover:bg-yellow-500/10 border border-yellow-500/30 transition-all transform active:scale-[0.98] shadow-sm flex flex-col justify-between min-h-[100px]";
-                card.className = isDone ? `${baseClass} card-completed` : baseClass;
-                card.onclick = () => openPractice(item);
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-1">
-                         <span class="text-lg font-bold ${isDone ? 'text-green-400' : 'text-yellow-600'}">
-                            ${isDone ? '<i class="fas fa-star"></i>' : `#${item.id}`}
-                        </span>
-                        <i class="fas fa-chevron-right text-yellow-600"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-yellow-400 leading-tight">${item.text}</h3>
-                        <p class="text-yellow-200/70 text-sm line-clamp-1 mt-1">"${item.phrase}"</p>
-                    </div>
-                `;
-                cardsContainer.appendChild(card);
-            });
-        }
-
-        function openPractice(item) {
-            cardsContainer.classList.add('hidden');
-            practiceArea.classList.remove('hidden');
-            categorySelect.parentElement.classList.add('hidden');
-            currentTarget = item;
-            targetDisplay.textContent = item.phrase;
-            practiceTag.textContent = item.hint;
-            spokenDisplay.textContent = "Tap mic & speak...";
-            spokenDisplay.className = "text-lg md:text-xl text-yellow-600 italic";
-            feedbackMsg.textContent = "";
-            log(`Opened card: ${item.text}`);
-        }
-
-        function backToGrid() {
-            cardsContainer.classList.remove('hidden');
-            practiceArea.classList.add('hidden');
-            categorySelect.parentElement.classList.remove('hidden');
-            stopRecording();
-            renderCards();
-        }
-
-        // --- SPEECH RECOGNITION ---
-        function initSpeechRecognition() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            
-            if (!SpeechRecognition) {
-                log("CRITICAL: Browser does not support SpeechRecognition.");
-                document.getElementById('browser-warning').classList.remove('hidden');
-                recordBtn.disabled = true;
-                return;
-            }
-
-            recognition = new SpeechRecognition();
-            recognition.lang = 'en-US';
-            recognition.interimResults = false; // Set to false to simplify
-            recognition.maxAlternatives = 1;
-            recognition.continuous = false;
-
-            recognition.onstart = () => {
-                isRecording = true;
-                updateMicUI(true);
-                log("Mic Started. Speak now.");
-                spokenDisplay.textContent = "Listening...";
-                spokenDisplay.className = "text-xl text-yellow-300 font-semibold animate-pulse";
-            };
-
-            recognition.onend = () => {
-                isRecording = false;
-                updateMicUI(false);
-                log("Mic Stopped.");
-            };
-
-            recognition.onerror = (event) => {
-                isRecording = false;
-                updateMicUI(false);
-                log(`ERROR: ${event.error}`);
-                
-                let msg = `Error: ${event.error}`;
-                if(event.error === 'not-allowed') msg = "BLOCKED: Allow Mic permission.";
-                if(event.error === 'network') msg = "OFFLINE: Connect to internet.";
-                feedbackMsg.textContent = msg;
-                feedbackMsg.className = "mt-3 font-bold text-sm text-red-500";
-            };
-
-            recognition.onnomatch = (event) => {
-                 log("No match found.");
-                 feedbackMsg.textContent = "Didn't catch that.";
-            };
-
-            recognition.onresult = (event) => {
-                const result = event.results[0][0].transcript;
-                log(`Heard: "${result}" (Conf: ${event.results[0][0].confidence})`);
-                spokenDisplay.textContent = `"${result}"`;
-                spokenDisplay.className = "text-xl text-yellow-400 font-bold";
-                checkMatch(result);
-            };
-            
-            log("Speech API Initialized.");
-        }
-
-        function toggleRecording() {
-            if (!recognition) return;
-            if (isRecording) {
-                recognition.stop();
-            } else {
-                log("Requesting Mic...");
-                recognition.start();
-            }
-        }
-
-        function stopRecording() {
-            if (isRecording && recognition) recognition.stop();
-        }
-
-        function updateMicUI(recording) {
-            const icon = document.getElementById('mic-icon');
-            if (recording) {
-                recordBtn.classList.replace('bg-red-600', 'bg-black');
-                recordBtn.classList.replace('border-black/30', 'border-yellow-400');
-                icon.className = "fas fa-stop text-3xl text-red-500";
-            } else {
-                recordBtn.classList.replace('bg-black', 'bg-red-600');
-                recordBtn.classList.replace('border-yellow-400', 'border-black/30');
-                icon.className = "fas fa-microphone text-3xl text-white";
-            }
-        }
-
-        // --- MATCHING LOGIC ---
-        function levenshteinDistance(a, b) {
-            const matrix = [];
-            for (let i = 0; i <= b.length; i++) matrix[i] = [i];
-            for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
-            for (let i = 1; i <= b.length; i++) {
-                for (let j = 1; j <= a.length; j++) {
-                    if (b.charAt(i - 1) == a.charAt(j - 1)) {
-                        matrix[i][j] = matrix[i - 1][j - 1];
-                    } else {
-                        matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1);
-                    }
-                }
-            }
-            return matrix[b.length][a.length];
-        }
-
-        function checkMatch(spoken) {
-            if(!currentTarget) return;
-            const normalize = (str) => str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s{2,}/g," ").trim();
-            const cleanSpoken = normalize(spoken);
-            const cleanTarget = normalize(currentTarget.phrase);
-            
-            const dist = levenshteinDistance(cleanSpoken, cleanTarget);
-            const maxLength = Math.max(cleanSpoken.length, cleanTarget.length);
-            const similarity = (maxLength - dist) / maxLength;
-
-            log(`Match Score: ${Math.round(similarity * 100)}%`);
-
-            if (similarity >= 0.8) {
-                feedbackMsg.textContent = `Perfect! (Match: ${Math.round(similarity * 100)}%)`;
-                feedbackMsg.className = "mt-3 font-bold text-lg text-green-500";
-                saveProgress(currentTarget.id);
-                triggerConfetti();
-            } else {
-                feedbackMsg.textContent = `Try again. (Match: ${Math.round(similarity * 100)}%)`;
-                feedbackMsg.className = "mt-3 font-bold text-lg text-yellow-600";
-            }
-        }
-
-        function loadVoices() {
-            const populate = () => { voices = window.speechSynthesis.getVoices(); };
-            populate();
-            if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populate;
-        }
-
-        function updateRateLabel(val) {
-            document.getElementById('rate-value').textContent = val + 'x';
-        }
-
-        function speak(text, rate = 1) {
-            if (window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+        function speakText(text) {
+            if(synth.speaking) synth.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
-            const voice = voices.find(v => v.lang.includes('en-US')) || voices.find(v => v.lang.includes('en'));
-            if (voice) utterance.voice = voice;
-            utterance.rate = rate;
-            window.speechSynthesis.speak(utterance);
+            utterance.lang = 'en-US'; utterance.rate = 0.9;
+            synth.speak(utterance);
         }
 
-        function speakTarget() { speak(currentTarget.phrase, 0.9); }
-
-        function speakFreeText() {
-            const text = document.getElementById('free-text').value;
-            if(text.trim() !== "") speak(text, document.getElementById('rate').value);
+        function readStory() {
+            if(synth.speaking) synth.cancel();
+            const btn = document.getElementById('btn-play-story');
+            btn.classList.add('speaking-anim');
+            const text = document.getElementById('story-text').innerText;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US'; utterance.rate = 0.9;
+            utterance.onend = () => btn.classList.remove('speaking-anim');
+            synth.speak(utterance);
         }
 
-        function triggerConfetti() {
-            const colors = ['#facc15', '#fbbf24', '#f59e0b', '#ffffff'];
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                document.body.appendChild(confetti);
-                setTimeout(() => confetti.remove(), 5000);
+        function stopSpeaking() {
+            synth.cancel();
+            const btn = document.getElementById('btn-play-story');
+            if(btn) btn.classList.remove('speaking-anim');
+        }
+
+        function switchTab(tabId) {
+            stopSpeaking();
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-orange-500', 'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'text-white', 'shadow-md');
+                btn.classList.add('bg-white');
+            });
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.remove('bg-white');
+            if(tabId === 'reading') activeBtn.classList.add('bg-orange-500', 'text-white', 'shadow-md');
+            if(tabId === 'grammar') activeBtn.classList.add('bg-blue-500', 'text-white', 'shadow-md');
+            if(tabId === 'timeline') activeBtn.classList.add('bg-green-500', 'text-white', 'shadow-md');
+            if(tabId === 'vocab') activeBtn.classList.add('bg-purple-500', 'text-white', 'shadow-md');
+        }
+
+        // --- 1. READING DATA & LOGIC ---
+        
+        // Quiz Data
+        const quizData = [
+            { q: "Who was Seyit Onbaşı?", opts: ["A British Admiral", "An Ottoman soldier", "A German commander", "A tourist"], a: 1 },
+            { q: "What happened when the enemy fired back at Mecidiye Batarya?", opts: ["They missed completely", "They killed almost all soldiers", "They surrendered", "They left the coast"], a: 1 },
+            { q: "How much did the shell weigh?", opts: ["100 kg", "275 kg", "50 kg", "500 kg"], a: 1 },
+            { q: "What happened to the warship 'Ocean'?", opts: ["It broke through", "It captured the fort", "It sank", "It sailed away safely"], a: 2 }
+        ];
+        const quizContainer = document.getElementById('quiz-container');
+        quizData.forEach((item, idx) => {
+            const qDiv = document.createElement('div');
+            qDiv.className = "bg-white p-4 rounded-lg shadow border border-gray-100";
+            qDiv.innerHTML = `<p class="font-semibold text-gray-800 mb-3">${idx + 1}. ${item.q}</p>`;
+            const optDiv = document.createElement('div');
+            optDiv.className = "space-y-2";
+            item.opts.forEach((opt, optIdx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left px-4 py-2 rounded-md transition-colors bg-gray-50 hover:bg-gray-100 text-gray-700 border border-transparent text-sm";
+                btn.textContent = opt;
+                btn.onclick = () => {
+                    Array.from(optDiv.children).forEach(b => { b.className = "w-full text-left px-4 py-2 rounded-md bg-gray-50 text-gray-400 text-sm"; b.disabled = true; });
+                    if(optIdx === item.a) {
+                        btn.className = "w-full text-left px-4 py-2 rounded-md bg-green-100 text-green-800 border-l-4 border-green-500 font-medium correct-anim text-sm";
+                        btn.innerHTML += ' ✅'; playSound('correct');
+                    } else {
+                        btn.className = "w-full text-left px-4 py-2 rounded-md bg-red-100 text-red-800 border-l-4 border-red-500 text-sm";
+                        btn.innerHTML += ' ❌'; playSound('wrong');
+                    }
+                };
+                optDiv.appendChild(btn);
+            });
+            qDiv.appendChild(optDiv);
+            quizContainer.appendChild(qDiv);
+        });
+
+        // True/False Data
+        const tfData = [
+            { s: "Seyit Onbaşı served in the Çanakkale war in 1915.", a: true },
+            { s: "The statue shows him holding a rifle.", a: false },
+            { s: "He lifted the shell alone with the help of a friend.", a: true },
+            { s: "The British Admiral ordered his ships to attack more.", a: false }
+        ];
+        const tfContainer = document.getElementById('tf-container');
+        tfData.forEach((item, i) => {
+            const row = document.createElement('div');
+            row.className = "flex flex-col sm:flex-row items-center justify-between bg-gray-50 p-3 rounded border border-gray-100";
+            row.innerHTML = `
+                <span class="text-gray-800 mb-2 sm:mb-0 text-sm flex-1 mr-2">${item.s}</span>
+                <div class="flex gap-2">
+                    <button onclick="checkTF(this, ${item.a}, true)" class="px-3 py-1 rounded border border-green-600 text-green-600 hover:bg-green-50 font-bold text-xs">TRUE</button>
+                    <button onclick="checkTF(this, ${item.a}, false)" class="px-3 py-1 rounded border border-red-600 text-red-600 hover:bg-red-50 font-bold text-xs">FALSE</button>
+                </div>
+            `;
+            tfContainer.appendChild(row);
+        });
+        function checkTF(btn, correctVal, clickedVal) {
+            const parent = btn.parentElement;
+            Array.from(parent.children).forEach(b => b.disabled = true);
+            if(correctVal === clickedVal) {
+                btn.classList.remove('hover:bg-green-50', 'hover:bg-red-50', 'text-green-600', 'text-red-600', 'border-green-600', 'border-red-600');
+                btn.classList.add('bg-green-600', 'text-white', 'border-green-600', 'correct-anim');
+                playSound('correct');
+            } else {
+                btn.classList.remove('hover:bg-green-50', 'hover:bg-red-50', 'text-green-600', 'text-red-600', 'border-green-600', 'border-red-600');
+                btn.classList.add('bg-red-600', 'text-white', 'border-red-600');
+                playSound('wrong');
             }
         }
+
+        // --- 2. GRAMMAR DATA & LOGIC ---
+
+        const grammarData = [
+            { id: 1, pre: "She left home while her baby", answer: "was sleeping", post: "." },
+            { id: 2, pre: "Mostly women and elderly people", answer: "were fighting", post: "there." },
+            { id: 3, pre: "Nene Hatun", answer: "was holding", post: "her brother's bayonet." },
+            { id: 4, pre: "Dead bodies", answer: "were lying", post: "around." },
+        ];
+        const gContainer = document.getElementById('grammar-container');
+        grammarData.forEach(item => {
+            const div = document.createElement('div');
+            div.className = "flex flex-col md:flex-row md:items-center gap-2 pb-4 border-b border-gray-100 last:border-0";
+            div.innerHTML = `
+                <span class="text-gray-700 text-sm md:text-base">${item.id}. ${item.pre}</span>
+                <div class="flex items-center gap-2">
+                    <input type="text" id="g-input-${item.id}" class="border-2 px-2 py-1 rounded w-32 border-gray-300 focus:border-blue-400 focus:outline-none" placeholder="verb + ing">
+                    <button onclick="checkGrammar(${item.id}, '${item.answer}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 shadow-sm">Check</button>
+                </div>
+                <span class="text-gray-700 text-sm md:text-base">${item.post}</span>
+            `;
+            gContainer.appendChild(div);
+        });
+        function checkGrammar(id, correct) {
+            const input = document.getElementById(`g-input-${id}`);
+            const val = input.value.trim().toLowerCase();
+            if(val === correct) {
+                input.classList.replace('border-gray-300', 'border-green-500');
+                input.classList.replace('border-red-500', 'border-green-500');
+                input.classList.add('bg-green-50');
+                playSound('correct');
+            } else {
+                input.classList.replace('border-gray-300', 'border-red-500');
+                input.classList.replace('border-green-500', 'border-red-500');
+                input.classList.add('bg-red-50');
+                playSound('wrong');
+            }
+        }
+
+        // Scramble Logic
+        const correctScramble = "He was carrying a heavy shell";
+        const scrambledWords = ["heavy", "carrying", "was", "He", "shell", "a"];
+        let currentScramble = [];
+        const dropzone = document.getElementById('scramble-dropzone');
+        const bank = document.getElementById('scramble-bank');
+        const feedback = document.getElementById('scramble-feedback');
+
+        function initScramble() {
+            bank.innerHTML = ''; dropzone.innerHTML = ''; currentScramble = [];
+            feedback.textContent = ''; feedback.className = 'mt-4 font-bold h-6';
+            dropzone.classList.remove('border-green-500'); dropzone.classList.add('border-blue-300');
+            
+            scrambledWords.forEach(word => {
+                const btn = document.createElement('button');
+                btn.textContent = word;
+                btn.className = "px-3 py-1 bg-white border border-blue-400 text-blue-700 rounded shadow hover:bg-blue-50 word-move text-sm";
+                btn.onclick = () => addToZone(btn, word);
+                bank.appendChild(btn);
+            });
+        }
+        initScramble();
+        function addToZone(btn, word) {
+            playSound('click'); btn.remove();
+            const newBtn = document.createElement('button');
+            newBtn.textContent = word;
+            newBtn.className = "px-3 py-1 bg-blue-100 border border-blue-500 text-blue-900 rounded shadow hover:bg-red-50 word-move text-sm";
+            newBtn.onclick = () => returnToBank(newBtn, word);
+            dropzone.appendChild(newBtn);
+            currentScramble.push(word);
+            checkScramble();
+        }
+        function returnToBank(btn, word) {
+            playSound('click'); btn.remove();
+            const newBtn = document.createElement('button');
+            newBtn.textContent = word;
+            newBtn.className = "px-3 py-1 bg-white border border-blue-400 text-blue-700 rounded shadow hover:bg-blue-50 word-move text-sm";
+            newBtn.onclick = () => addToZone(newBtn, word);
+            bank.appendChild(newBtn);
+            currentScramble = currentScramble.filter(w => w !== word);
+            feedback.textContent = '';
+        }
+        function checkScramble() {
+            if(currentScramble.join(" ") === correctScramble) {
+                playSound('correct');
+                feedback.textContent = "Correct! Well done.";
+                feedback.classList.add('text-green-600');
+                dropzone.classList.replace('border-blue-300', 'border-green-500');
+            }
+        }
+        function resetScramble() { initScramble(); }
+
+        // --- 3. TIMELINE DATA & LOGIC ---
+
+        const timelineEvents = [
+            { id: 'a', text: "Nene Hatun's brother got wounded and died.", order: 1 },
+            { id: 'd', text: "The Russian Army captured Fort Aziziye.", order: 2 },
+            { id: 'b', text: "She kissed her brother's head.", order: 3 },
+            { id: 'e', text: "She took her brother's bayonet.", order: 4 },
+            { id: 'c', text: "She went to the battlefield.", order: 5 },
+            { id: 'f', text: "Her son Yusuf died.", order: 6 },
+        ];
+        let currentStep = 1;
+        const statusEl = document.getElementById('timeline-status');
+        const tlContainer = document.getElementById('timeline-container');
+        
+        function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+
+        shuffle(timelineEvents).forEach(ev => {
+            const btn = document.createElement('button');
+            btn.className = "timeline-item p-3 rounded-lg text-left transition-all duration-300 border bg-white border-gray-200 hover:border-green-400 hover:shadow-sm group";
+            btn.setAttribute('data-order', ev.order);
+            btn.innerHTML = `<div class="flex items-center gap-3 pointer-events-none"><div class="w-6 h-6 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-xs font-bold border border-gray-300 group-hover:bg-green-50 group-hover:text-green-600">?</div><span class="text-sm md:text-base text-gray-700">${ev.text}</span></div>`;
+            btn.onclick = function() {
+                const order = parseInt(this.getAttribute('data-order'));
+                if(order === currentStep) {
+                    this.classList.remove('bg-white', 'border-gray-200');
+                    this.classList.add('bg-green-100', 'border-green-500', 'opacity-80', 'order-last');
+                    this.querySelector('.rounded-full').innerHTML = '✓';
+                    this.querySelector('.rounded-full').className = 'w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center text-xs font-bold';
+                    this.disabled = true;
+                    currentStep++; playSound('correct');
+                    statusEl.textContent = "Correct! What happened next?";
+                    statusEl.className = "font-medium text-sm text-green-900 mb-4 bg-green-200 inline-block px-3 py-1 rounded border border-green-300";
+                    if(currentStep > 6) {
+                        document.getElementById('timeline-success').classList.remove('hidden');
+                        statusEl.textContent = "All done! History restored.";
+                        playSound('success');
+                    }
+                } else if (order < currentStep) {
+                    statusEl.textContent = "You already did that one!";
+                } else {
+                    statusEl.textContent = "Incorrect order. Try again!";
+                    statusEl.className = "font-medium text-sm text-red-800 mb-4 bg-red-100 inline-block px-3 py-1 rounded border border-red-200";
+                    playSound('wrong');
+                }
+            };
+            tlContainer.appendChild(btn);
+        });
+
+        // Cause & Effect Logic
+        const pairs = [
+            { c: "The shell hit the ship", e: "The ship sank" },
+            { c: "The Russians attacked", e: "Nene Hatun joined the fight" },
+            { c: "Seyit was very strong", e: "He could lift 275kg" },
+            { c: "He loved his country", e: "He fought bravely" }
+        ];
+        let selectedCause = null;
+        const causes = pairs.map((p, i) => ({txt: p.c, id: i}));
+        const effects = pairs.map((p, i) => ({txt: p.e, id: i})).sort(() => Math.random() - 0.5);
+        
+        const colC = document.getElementById('col-causes');
+        const colE = document.getElementById('col-effects');
+
+        causes.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = "w-full p-3 bg-orange-50 border border-orange-200 rounded text-sm text-left hover:bg-orange-100 transition";
+            btn.textContent = item.txt;
+            btn.onclick = () => {
+                playSound('click');
+                document.querySelectorAll('#col-causes button').forEach(b => b.classList.remove('ring-2', 'ring-orange-400', 'bg-orange-200'));
+                btn.classList.add('ring-2', 'ring-orange-400', 'bg-orange-200');
+                selectedCause = { id: item.id, el: btn };
+            };
+            colC.appendChild(btn);
+        });
+
+        effects.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = "w-full p-3 bg-blue-50 border border-blue-200 rounded text-sm text-left hover:bg-blue-100 transition";
+            btn.textContent = item.txt;
+            btn.onclick = () => {
+                if(!selectedCause) return;
+                if(selectedCause.id === item.id) {
+                    playSound('correct');
+                    btn.classList.add('bg-green-100', 'text-gray-400', 'line-through', 'border-green-200');
+                    selectedCause.el.classList.add('bg-green-100', 'text-gray-400', 'line-through', 'border-green-200');
+                    selectedCause.el.classList.remove('ring-2', 'ring-orange-400', 'bg-orange-200');
+                    btn.disabled = true; selectedCause.el.disabled = true;
+                    selectedCause = null;
+                } else {
+                    playSound('wrong');
+                    btn.classList.add('bg-red-100');
+                    setTimeout(() => btn.classList.remove('bg-red-100'), 500);
+                }
+            };
+            colE.appendChild(btn);
+        });
+
+        // --- 4. VOCAB DATA & LOGIC ---
+        
+        const vocabList = [
+            { word: "Capture", def: "Take into one's possession or control by force" },
+            { word: "Unconscious", def: "Not awake and aware of one's environment" },
+            { word: "Battlefield", def: "Arena of war" },
+            { word: "Martyr", def: "A person who is killed because of his/her beliefs" }
+        ];
+        const pronunciationWords = [
+            { word: "Wanted", type: "/id/" }, { word: "Looked", type: "/t/" },
+            { word: "Cleaned", type: "/d/" }, { word: "Decided", type: "/id/" },
+            { word: "Kissed", type: "/t/" }, { word: "Saved", type: "/d/" }
+        ];
+
+        const vList = document.getElementById('vocab-list');
+        vocabList.forEach(v => {
+            // FIX: Escape apostrophes to prevent JS errors
+            const safeDef = v.def.replace(/'/g, "\\'");
+            
+            vList.innerHTML += `
+                <div class="bg-white p-3 rounded-lg shadow-sm border border-purple-100 hover:shadow-md transition flex justify-between items-center group cursor-pointer" onclick="speakText('${v.word}. ${safeDef}')">
+                    <div><span class="font-bold text-purple-700 block group-hover:text-purple-900">${v.word}</span><span class="text-xs text-gray-600">${v.def}</span></div>
+                    <div class="text-purple-300 group-hover:text-purple-600">🔊</div>
+                </div>`;
+        });
+
+        const pList = document.getElementById('pronunciation-list');
+        pronunciationWords.forEach(w => {
+            let color = w.type === '/id/' ? 'bg-blue-100 text-blue-600' : w.type === '/t/' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
+            pList.innerHTML += `
+                <button onclick="speakText('${w.word}'); playSound('click')" class="w-full flex justify-between items-center bg-white p-2 rounded-lg border border-gray-100 shadow-sm hover:bg-pink-50 transition text-left">
+                    <span class="text-gray-800 text-sm font-medium flex items-center gap-2">🔊 ${w.word}</span>
+                    <span class="text-xs font-bold font-mono px-2 py-1 rounded-full ${color}">${w.type}</span>
+                </button>`;
+        });
+
+        // Spelling Bee Logic
+        const spellingWords = ["statue", "soldier", "valley", "cannon"];
+        const spellCont = document.getElementById('spelling-container');
+        spellingWords.forEach(word => {
+            const wrapper = document.createElement('div');
+            wrapper.className = "bg-white p-3 rounded shadow border flex items-center gap-2";
+            wrapper.innerHTML = `
+                <button onclick="speakText('${word}')" class="bg-yellow-100 p-2 rounded-full hover:bg-yellow-200 text-yellow-700 transition"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+                <input type="text" class="border-b-2 border-gray-300 focus:border-yellow-500 outline-none w-24 text-center text-sm p-1" placeholder="Type here">
+                <button class="check-btn text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300 transition">Check</button>
+            `;
+            const input = wrapper.querySelector('input');
+            const checkBtn = wrapper.querySelector('.check-btn');
+            checkBtn.onclick = () => {
+                if(input.value.toLowerCase().trim() === word) {
+                    playSound('correct');
+                    input.classList.add('text-green-600', 'font-bold'); input.disabled = true;
+                    checkBtn.textContent = "✔"; checkBtn.classList.replace('bg-gray-200', 'bg-green-200');
+                } else {
+                    playSound('wrong');
+                    input.classList.add('text-red-600');
+                    setTimeout(() => input.classList.remove('text-red-600'), 500);
+                }
+            };
+            spellCont.appendChild(wrapper);
+        });
+
     </script>
 </body>
 </html>
