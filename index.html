@@ -3,113 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>History Heroes & Grammar (Bilingual + Audio)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Grammar Lab: When vs. While</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            --color-bg: #fdfbf7;
+            --color-text: #2d3436;
+            --color-while: #b8e994; /* Mint Green */
+            --color-while-dark: #78e08f;
+            --color-when: #fab1a0; /* Coral Red */
+            --color-when-dark: #e17055;
+            --color-accent: #74b9ff;
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --radius: 12px;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding-bottom: 50px;
+        }
+
+        /* --- LAYOUT UTILITIES --- */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2, h3 { color: #2d3436; margin-bottom: 10px; }
+        h1 { text-align: center; margin-bottom: 30px; font-size: 2.5rem; }
         
-        .tab-content { display: none; animation: fadeIn 0.5s; }
-        .tab-content.active { display: block; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid #eee;
         }
 
-        .correct-anim { animation: bounce 0.5s; }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        .speaking-anim { animation: pulse-ring 1.5s infinite; }
-        @keyframes pulse-ring {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(251, 146, 60, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 146, 60, 0); }
-        }
-
-        .word-move { transition: all 0.2s ease; }
-
-        /* --- INTERACTIVE TEXT STYLES --- */
-        .interactive-word {
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s;
-            border-bottom: 2px solid transparent;
-            display: inline-block;
-            padding: 0 2px;
-            border-radius: 4px;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: transform 0.1s;
         }
-        .interactive-word:hover {
-            background-color: #ffedd5; /* light orange */
-            color: #c2410c;
-        }
-        
-        .sentence-wrapper {
-            margin-bottom: 1.5rem;
-            padding: 12px;
-            border-radius: 12px;
-            transition: background-color 0.3s, transform 0.2s;
-            cursor: pointer;
-            border: 1px solid transparent;
-        }
-        .sentence-wrapper:hover {
-            background-color: #fffbeb; /* very light yellow/orange */
-            border-color: #fcd34d;
-        }
+        .btn:active { transform: scale(0.98); }
+        .btn-check { background-color: var(--color-accent); color: white; display: block; margin: 20px auto 0; }
 
-        .tr-sentence {
-            display: none;
-            margin-top: 8px;
-            color: #ea580c; /* orange-600 */
-            font-weight: 600;
-            font-style: italic;
-            border-left: 4px solid #f97316;
-            padding-left: 12px;
-            animation: slideDown 0.3s ease-out;
+        /* --- TRANSLATION TOOLTIP SYSTEM --- */
+        .translatable {
+            border-bottom: 2px dotted #b2bec3;
+            cursor: help;
+            transition: background 0.2s;
         }
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .translatable:hover { background-color: #ffeaa7; }
 
-        /* Audio Button in Sentence */
-        .sent-audio-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            background-color: #fef3c7;
-            color: #d97706;
-            border-radius: 50%;
-            margin-right: 8px;
-            font-size: 14px;
-            transition: all 0.2s;
-            border: 1px solid #fcd34d;
-        }
-        .sent-audio-btn:hover {
-            background-color: #f59e0b;
-            color: white;
-            transform: scale(1.1);
-        }
-
-        /* Tooltip for words */
-        #word-tooltip {
+        #tooltip {
             position: absolute;
-            background: #1e293b;
+            background: #2d3436;
             color: white;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 13px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
             pointer-events: none;
-            z-index: 50;
             display: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            white-space: nowrap;
+            z-index: 1000;
+            transform: translate(-50%, -40px);
         }
-        #word-tooltip::after {
+        #tooltip::after {
             content: '';
             position: absolute;
             top: 100%;
@@ -117,704 +88,815 @@
             margin-left: -5px;
             border-width: 5px;
             border-style: solid;
-            border-color: #1e293b transparent transparent transparent;
+            border-color: #2d3436 transparent transparent transparent;
+        }
+
+        /* --- PART 1: VISUAL GRAMMAR LAB --- */
+        .formula-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .formula-box {
+            padding: 15px;
+            border-radius: var(--radius);
+            font-weight: bold;
+            text-align: center;
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .box-while { background-color: var(--color-while); border: 2px solid var(--color-while-dark); }
+        .box-when { background-color: var(--color-when); border: 2px solid var(--color-when-dark); }
+
+        .timeline-visual {
+            position: relative;
+            height: 100px;
+            margin: 30px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* The Long Action (While) */
+        .timeline-line {
+            width: 80%;
+            height: 12px;
+            background: linear-gradient(90deg, var(--color-while-dark) 0%, var(--color-while) 100%);
+            border-radius: 10px;
+            position: relative;
+        }
+        .timeline-line::before { content: 'Past Continuous (Long Action)'; position: absolute; top: -25px; left: 0; font-size: 0.8rem; color: #555; }
+
+        /* The Interruption (When) */
+        .timeline-break {
+            position: absolute;
+            left: 60%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: var(--color-when-dark);
+            background: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border: 2px solid var(--color-when);
+        }
+        .timeline-break::after { content: 'Simple Past (Interruption)'; position: absolute; bottom: -35px; width: 150px; text-align: center; font-size: 0.8rem; color: #555; line-height: 1.2; }
+
+        /* --- ACTIVITY 1: TIMELINE DRAG --- */
+        .act1-container { text-align: center; }
+        .act1-bar {
+            width: 100%;
+            height: 40px;
+            background: #dfe6e9;
+            border-radius: 20px;
+            position: relative;
+            margin: 40px 0;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .act1-progress {
+            width: 0%;
+            height: 100%;
+            background-color: var(--color-while);
+            transition: width 0.3s;
+        }
+        .act1-target {
+            position: absolute;
+            left: 70%; /* Correct Answer Spot */
+            top: 0;
+            width: 15%; /* Tolerance zone */
+            height: 100%;
+            /* hidden visually but active logically */
+        }
+        .act1-icon {
+            font-size: 2rem;
+            position: absolute;
+            top: -10px;
+            left: 5%;
+            cursor: grab;
+            transition: left 0.2s;
+            user-select: none;
+        }
+
+        /* --- ACTIVITY 2: GAP FILL --- */
+        .gap-sentence { margin-bottom: 15px; font-size: 1.1rem; }
+        .gap-input {
+            border: none;
+            border-bottom: 2px solid #b2bec3;
+            font-size: 1.1rem;
+            width: 100px;
+            text-align: center;
+            background: transparent;
+            color: var(--color-accent);
+            font-weight: bold;
+        }
+        .gap-input:focus { outline: none; border-bottom-color: var(--color-accent); }
+
+        /* --- ACTIVITY 3: LOGIC MATCH --- */
+        .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .match-item {
+            padding: 10px;
+            background: #f1f2f6;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .match-item.selected { border-color: var(--color-accent); background: #fff; }
+        .match-item.correct { background-color: #55efc4; border-color: #00b894; color: #006266; }
+
+        /* --- ACTIVITY 4: SCRAMBLED --- */
+        .word-bank { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; min-height: 50px; }
+        .word-bubble {
+            background: white;
+            border: 1px solid #b2bec3;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .sentence-area {
+            min-height: 60px;
+            background: #f5f6fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+            border: 2px dashed #dcdde1;
+        }
+
+        /* --- ACTIVITY 5: MAIDEN'S TOWER --- */
+        .story-text { font-size: 1.1rem; line-height: 1.8; text-align: justify; }
+        .verb-click {
+            font-weight: bold;
+            color: var(--color-accent);
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            border: 1px solid transparent;
+        }
+        .verb-click:hover { background: #dfe6e9; }
+        
+        .verb-modal {
+            position: absolute;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+            z-index: 10;
+        }
+        .verb-modal button { display: block; width: 100%; margin: 5px 0; font-size: 0.8rem; }
+
+        /* --- ACTIVITY 6: SPEED QUIZ --- */
+        .quiz-box { text-align: center; }
+        .timer { font-size: 1.5rem; font-weight: bold; color: var(--color-when-dark); margin-bottom: 10px; }
+        .quiz-question { font-size: 1.2rem; margin-bottom: 20px; height: 60px; display: flex; align-items: center; justify-content: center;}
+        .quiz-opts { display: flex; gap: 20px; justify-content: center; }
+        .quiz-btn { width: 120px; padding: 15px; font-size: 1.2rem; }
+
+        /* --- ACTIVITY 7: EMOJI DECODER --- */
+        .emoji-display { font-size: 3rem; text-align: center; margin-bottom: 20px; letter-spacing: 15px; }
+        .option-btn { display: block; width: 100%; text-align: left; margin: 10px 0; background: #f1f2f6; color: #2d3436; }
+        .option-btn:hover { background: #e0e0e0; }
+
+        /* --- ACTIVITY 8: WAS OR WERE --- */
+        .ww-container { display: flex; gap: 20px; justify-content: center; margin-top: 20px; }
+        .ww-btn { flex: 1; padding: 30px; font-size: 1.5rem; text-transform: uppercase; }
+        
+        /* --- ACTIVITY 9: SPOT MISTAKE --- */
+        .error-sentence { font-size: 1.3rem; text-align: center; cursor: pointer; }
+        .error-word { padding: 5px; border-radius: 4px; transition: 0.2s; }
+        .error-word:hover { background: #ffeaa7; }
+
+        /* --- ACTIVITY 10: STORY MODE --- */
+        .story-select { border: none; border-bottom: 2px solid var(--color-accent); font-family: inherit; font-size: 1rem; color: #2d3436; background: transparent; font-weight: bold; cursor: pointer; }
+        .story-select:focus { outline: none; background: #eee; }
+
+        /* --- FEEDBACK CLASSES --- */
+        .correct-text { color: #00b894; font-weight: bold; }
+        .wrong-text { color: #d63031; text-decoration: line-through; }
+        .feedback-msg { text-align: center; margin-top: 10px; font-weight: bold; min-height: 24px; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .formula-container { flex-direction: column; }
+            .match-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 1.8rem; }
+            .ww-container { flex-direction: column; }
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen pb-20">
+<body>
 
-    <div id="word-tooltip">Translation</div>
+    <!-- TOOLTIP ELEMENT -->
+    <div id="tooltip">Translation</div>
 
-    <header class="bg-white p-6 text-center shadow-sm border-b border-gray-200 sticky top-0 z-20">
-        <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800 tracking-tight mb-1">History Heroes & Grammar</h1>
-        <p class="text-gray-500 text-sm md:text-base">Interactive Lesson: Seyit Onbaşı & Nene Hatun</p>
-    </header>
+    <div class="container">
+        <header>
+            <h1>⚡ Past Continuous vs Simple Past ⚡</h1>
+            <p style="text-align: center; color: #636e72;">
+                Learn how to tell stories with <span class="translatable" data-term="background" style="background:var(--color-while); padding:2px 5px; border-radius:4px;">Background Actions</span> and <span class="translatable" data-term="interruption" style="background:var(--color-when); padding:2px 5px; border-radius:4px;">Interruptions</span>.
+            </p>
+            <p style="text-align: center; margin-top: 5px; font-size: 0.9rem; color: #b2bec3;">
+                (<span class="translatable" data-term="click">Click</span> any underlined word for Turkish translation!)
+            </p>
+        </header>
 
-    <nav class="sticky top-[88px] z-10 bg-gray-100 pt-2 pb-4 px-2">
-        <div class="flex flex-wrap justify-center gap-2">
-            <button onclick="switchTab('reading')" id="btn-reading" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-full font-bold transition shadow-sm bg-orange-500 text-white">
-                Reading
-            </button>
-            <button onclick="switchTab('grammar')" id="btn-grammar" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-full font-bold transition bg-white text-blue-600 hover:bg-blue-50">
-                Grammar
-            </button>
-            <button onclick="switchTab('timeline')" id="btn-timeline" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-full font-bold transition bg-white text-green-600 hover:bg-green-50">
-                Story Order
-            </button>
-            <button onclick="switchTab('vocab')" id="btn-vocab" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-full font-bold transition bg-white text-purple-600 hover:bg-purple-50">
-                Vocab
-            </button>
-        </div>
-    </nav>
+        <!-- PART 1: THE LESSON -->
+        <section id="learn">
+            <div class="card">
+                <h2>The Visual Formula</h2>
+                
+                <div class="timeline-visual">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-break">⚡</div>
+                </div>
 
-    <main class="max-w-3xl mx-auto p-4">
-
-        <div id="reading" class="tab-content active space-y-6">
-            
-            <div class="bg-amber-50 p-6 rounded-xl border-l-8 border-amber-500 shadow-sm relative">
-                <div class="flex justify-between items-center mb-4 border-b border-amber-200 pb-2">
-                    <h2 class="text-2xl font-bold text-amber-800">An Unforgettable Hero: Seyit Onbaşı</h2>
-                    <div class="flex gap-2">
-                        <button onclick="readStory()" id="btn-play-story" class="flex items-center gap-1 px-3 py-1 bg-amber-600 text-white rounded-full hover:bg-amber-700 text-sm font-bold shadow transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg> Read All
-                        </button>
-                        <button onclick="stopSpeaking()" class="flex items-center gap-1 px-3 py-1 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 text-sm font-bold shadow transition">Stop</button>
+                <div class="formula-container">
+                    <div class="formula-box box-while">
+                        <h3>WHILE (The <span class="translatable" data-term="background">Background</span>)</h3>
+                        <p><span class="translatable" data-term="subject">Subject</span> + <strong>was / were</strong> + Verb<strong>-ing</strong></p>
+                        <p style="margin-top:5px; font-size:0.9rem;">"While I was <span class="translatable" data-term="sleep">sleeping</span>..."</p>
                     </div>
+                    <div class="formula-box box-when">
+                        <h3>WHEN (The <span class="translatable" data-term="interruption">Interruption</span>)</h3>
+                        <p><span class="translatable" data-term="subject">Subject</span> + <strong>Verb (Past)</strong></p>
+                        <p style="margin-top:5px; font-size:0.9rem;">"...the phone <span class="translatable" data-term="ring">rang</span>."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PART 2: ACTIVITIES -->
+        <section id="practice">
+
+            <!-- Activity 1 -->
+            <div class="card act1-container">
+                <h3>1. The Timeline Visualizer</h3>
+                <p><span class="translatable" data-term="drag">Drag</span> the slider to the moment the interruption happens.</p>
+                <p style="margin-top: 10px; font-style: italic;">
+                    "I was <span class="translatable" data-term="watch">watching</span> TV when the <span class="translatable" data-term="electricity">electricity</span> went out."
+                </p>
+                
+                <div class="act1-bar" id="sliderBar">
+                    <div class="act1-progress" id="sliderProgress"></div>
+                    <div class="act1-icon" id="sliderIcon">⚡</div>
+                </div>
+                <div id="act1-feedback" class="feedback-msg"></div>
+                <button class="btn btn-check" onclick="checkActivity1()"><span class="translatable" data-term="check">Check</span> <span class="translatable" data-term="position">Position</span></button>
+            </div>
+
+            <!-- Activity 2 -->
+            <div class="card">
+                <h3>2. <span class="translatable" data-term="gap">Gap</span> <span class="translatable" data-term="fill">Fill</span> <span class="translatable" data-term="challenge">Challenge</span></h3>
+                <p>Fill in the blanks. Watch out for 'While' and 'When' rules!</p>
+                <br>
+                <div class="gap-sentence">
+                    1. <span class="translatable" data-term="while">While</span> Ahmet <input type="text" class="gap-input" data-ans="was studying"> (<span class="translatable" data-term="study">study</span>), his mother called him.
+                </div>
+                <div class="gap-sentence">
+                    2. We were having breakfast <span class="translatable" data-term="when">when</span> the postman <input type="text" class="gap-input" data-ans="arrived"> (<span class="translatable" data-term="arrive">arrive</span>).
+                </div>
+                <div class="gap-sentence">
+                    3. They <input type="text" class="gap-input" data-ans="were walking"> (walk) to school when it started to <span class="translatable" data-term="rain">rain</span>.
+                </div>
+                <div id="act2-feedback" class="feedback-msg"></div>
+                <button class="btn btn-check" onclick="checkActivity2()"><span class="translatable" data-term="check">Check</span> <span class="translatable" data-term="answer">Answers</span></button>
+            </div>
+
+            <!-- Activity 3 -->
+            <div class="card">
+                <h3>3. <span class="translatable" data-term="logic">Logic</span> <span class="translatable" data-term="match">Match</span></h3>
+                <p>Click a phrase on the left, then click the logical match on the right.</p>
+                <div class="match-grid" id="matchGrid">
+                    <!-- JS will populate this -->
+                </div>
+                <div id="act3-feedback" class="feedback-msg"></div>
+            </div>
+
+            <!-- Activity 4 -->
+            <div class="card">
+                <h3>4. <span class="translatable" data-term="scrambled">Scrambled</span> <span class="translatable" data-term="sentence">Sentence</span></h3>
+                <p>Click the words in the correct order to form the sentence.</p>
+                <div class="sentence-area" id="sentenceArea"></div>
+                <div class="word-bank" id="wordBank"></div>
+                <div id="act4-feedback" class="feedback-msg"></div>
+                <button class="btn btn-check" onclick="checkActivity4()">Check Order</button>
+            </div>
+
+            <!-- Activity 5 -->
+            <div class="card" style="position: relative;">
+                <h3>5. The <span class="translatable" data-term="legend">Legend</span> of Maiden's Tower</h3>
+                <p style="margin-bottom: 15px;">Read the text. Click the <strong>bold verbs</strong> and decide: is it Background (While) or Interruption (When)?</p>
+                
+                <div class="story-text">
+                    According to a <span class="translatable" data-term="legend">legend</span>, an <span class="translatable" data-term="emperor">emperor</span> had a beautiful daughter. One night, the emperor 
+                    <span class="verb-click" data-type="when" id="v1">dreamt</span> that a <span class="translatable" data-term="snake">snake</span> would <span class="translatable" data-term="bite">bite</span> his daughter.
+                    So, he sent her to a <span class="translatable" data-term="tower">tower</span>. Years later, while she 
+                    <span class="verb-click" data-type="while" id="v2">was living</span> in the tower, a snake 
+                    <span class="verb-click" data-type="when" id="v3">came</span> out of a grape basket and 
+                    <span class="verb-click" data-type="when" id="v4">bit</span> her.
                 </div>
                 
-                <p class="text-xs text-amber-800 mb-4 bg-amber-100 p-2 rounded inline-block border border-amber-200">
-                    👉 <strong>Tip:</strong> Click <span class="bg-yellow-200 px-1 rounded">🔊</span> to listen, click a <u>word</u> for meaning, click the <u>sentence</u> for translation.
-                </p>
-
-                <div id="story-container" class="text-gray-800 leading-relaxed text-lg">
-                    </div>
-
-            </div>
-
-            <div class="space-y-4 mt-8">
-                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2 border-b pb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/></svg>
-                    1. Comprehension Check
-                </h3>
-                <div id="quiz-container" class="space-y-4"></div>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mt-6">
-                <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">2. True or False Challenge</h3>
-                <div id="tf-container" class="grid gap-3"></div>
-            </div>
-        </div>
-
-        <div id="grammar" class="tab-content space-y-6">
-            <div class="bg-blue-50 p-6 rounded-xl border-l-8 border-blue-500 shadow-sm">
-                <h2 class="text-2xl font-bold text-blue-800 mb-4">Past Continuous Tense</h2>
-                <p class="mb-4 text-gray-700">We use this tense for actions happening at a specific time in the past.</p>
-                <div class="bg-white p-4 rounded-lg border border-blue-200 font-mono text-sm md:text-base shadow-sm">
-                    <p class="text-green-600 mb-2">I / He / She / It + <strong class="bg-green-100 px-1 rounded">was</strong> + verb<strong>-ing</strong></p>
-                    <p class="text-purple-600">We / You / They + <strong class="bg-purple-100 px-1 rounded">were</strong> + verb<strong>-ing</strong></p>
+                <!-- Hidden Menu for interaction -->
+                <div id="verbModal" class="verb-modal">
+                    <button class="btn" style="background:var(--color-while);" onclick="ansVerb('while')">Background (While)</button>
+                    <button class="btn" style="background:var(--color-when);" onclick="ansVerb('when')">Interruption (When)</button>
                 </div>
-                <p class="mt-4 italic text-gray-600 border-l-4 border-gray-300 pl-3 cursor-pointer hover:text-blue-600" onclick="speakText('While he was running in the park, he saw a dog.')">Example: "While he <strong>was running</strong> in the park, he saw a dog." (Click to listen)</p>
+                <div id="act5-feedback" class="feedback-msg"></div>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-lg font-bold text-gray-800 mb-6">1. Fill in the blanks (Watch your spelling!)</h3>
-                <div id="grammar-container" class="space-y-6"></div>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-lg font-bold text-gray-800 mb-2">2. Sentence Scramble</h3>
-                <p class="text-sm text-gray-500 mb-4">Click words in order to build: <em>"Peace of cake (Sizin için Çocuk oyuncağı)"</em></p>
-                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
-                    <div id="scramble-dropzone" class="min-h-[60px] bg-white border-2 border-dashed border-blue-300 rounded-lg mb-4 flex flex-wrap gap-2 p-3 justify-center items-center text-lg font-medium text-blue-800 transition-colors"></div>
-                    <div id="scramble-bank" class="flex flex-wrap gap-2 justify-center"></div>
-                    <div id="scramble-feedback" class="mt-4 font-bold h-6"></div>
-                    <button onclick="resetScramble()" class="mt-2 text-xs text-gray-400 underline hover:text-gray-600">Reset</button>
-                </div>
-            </div>
-        </div>
 
-        <div id="timeline" class="tab-content space-y-6">
-            <div class="bg-green-50 p-6 rounded-xl border border-green-200 text-center shadow-sm">
-                <h2 class="text-2xl font-bold text-green-800 mb-2">The Story of Nene Hatun</h2>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-lg font-bold text-gray-800 mb-2">1. Restore History</h3>
-                <p id="timeline-status" class="font-medium text-sm text-green-700 mb-4 bg-green-50 inline-block px-3 py-1 rounded border border-green-200">Start by clicking the 1st event.</p>
-                <div id="timeline-container" class="grid grid-cols-1 gap-3"></div>
-                <div id="timeline-success" class="hidden text-center p-6 bg-gradient-to-r from-green-100 to-green-200 rounded-xl shadow-inner border border-green-300 animate-pulse mt-4">
-                    <h3 class="text-xl font-bold text-green-900">Great Job! History Restored.</h3>
+            <!-- Activity 6 -->
+            <div class="card quiz-box">
+                <h3>6. <span class="translatable" data-term="speed">Speed</span> <span class="translatable" data-term="quiz">Quiz</span> ⏱️</h3>
+                <div class="timer" id="timer">05</div>
+                <div class="quiz-question" id="quizQ">Press Start!</div>
+                <div class="quiz-opts">
+                    <button class="btn" style="background:var(--color-while)" onclick="ansQuiz('While')">While</button>
+                    <button class="btn" style="background:var(--color-when)" onclick="ansQuiz('When')">When</button>
                 </div>
+                <button class="btn btn-check" onclick="startQuiz()">Start Quiz</button>
+                <div id="quiz-feedback" class="feedback-msg"></div>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">2. Cause & Effect Match</h3>
-                <div class="grid grid-cols-2 gap-4" id="cause-effect-game">
-                    <div class="space-y-2" id="col-causes"></div>
-                    <div class="space-y-2" id="col-effects"></div>
-                </div>
-            </div>
-        </div>
 
-        <div id="vocab" class="tab-content space-y-6">
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="bg-purple-50 p-5 rounded-xl shadow-sm border border-purple-100">
-                    <h3 class="text-xl font-bold text-purple-900 mb-4 flex items-center gap-2">1. Vocabulary Match</h3>
-                    <div class="space-y-3" id="vocab-list"></div>
+            <!-- Activity 7 -->
+            <div class="card">
+                <h3>7. Emoji Decoder</h3>
+                <p>Look at the emojis. Which sentence is correct?</p>
+                <div class="emoji-display" id="emojiDisplay">🏃‍♂️ 🌧️</div>
+                <div id="emojiOpts">
+                    <button class="btn option-btn" onclick="checkAct7(0)">A) While he was running, it started to rain.</button>
+                    <button class="btn option-btn" onclick="checkAct7(1)">B) He was running when it was raining.</button>
+                    <button class="btn option-btn" onclick="checkAct7(2)">C) He ran while it started to rain.</button>
                 </div>
-                <div class="bg-pink-50 p-5 rounded-xl shadow-sm border border-pink-100">
-                    <h3 class="text-xl font-bold text-pink-900 mb-4 flex items-center gap-2">2. Pronunciation Sort</h3>
-                    <div class="grid grid-cols-3 gap-2 text-center font-bold text-white mb-4 text-sm">
-                        <div class="bg-blue-400 rounded p-1">/id/</div>
-                        <div class="bg-green-400 rounded p-1">/t/</div>
-                        <div class="bg-red-400 rounded p-1">/d/</div>
-                    </div>
-                    <div class="space-y-2" id="pronunciation-list"></div>
-                </div>
+                <div id="act7-feedback" class="feedback-msg"></div>
             </div>
-            <div class="bg-yellow-50 p-6 rounded-xl border-l-4 border-yellow-400 shadow-sm">
-                <h3 class="text-xl font-bold text-yellow-900 mb-2 flex items-center gap-2">3. Audio Spelling Bee</h3>
-                <div class="flex flex-wrap gap-4" id="spelling-container"></div>
-            </div>
-        </div>
 
-    </main>
+            <!-- Activity 8 -->
+            <div class="card quiz-box">
+                <h3>8. Was or Were?</h3>
+                <p>Choose the correct verb for the subject.</p>
+                <div class="quiz-question" id="wwSentence">They _____ sleeping.</div>
+                <div class="ww-container">
+                    <button class="btn" style="background: #a29bfe; color: white;" onclick="checkAct8('was')">WAS</button>
+                    <button class="btn" style="background: #6c5ce7; color: white;" onclick="checkAct8('were')">WERE</button>
+                </div>
+                <div id="act8-feedback" class="feedback-msg"></div>
+            </div>
+
+            <!-- Activity 9 -->
+            <div class="card">
+                <h3>9. Find the Mistake</h3>
+                <p>Click on the <strong>one wrong word</strong> in this sentence.</p>
+                <div class="error-sentence" id="errorSentence">
+                    <span class="error-word" onclick="checkAct9(this, false)">I</span> 
+                    <span class="error-word" onclick="checkAct9(this, true)">were</span> 
+                    <span class="error-word" onclick="checkAct9(this, false)">cooking</span> 
+                    <span class="error-word" onclick="checkAct9(this, false)">when</span> 
+                    <span class="error-word" onclick="checkAct9(this, false)">you</span> 
+                    <span class="error-word" onclick="checkAct9(this, false)">came.</span>
+                </div>
+                <div id="act9-feedback" class="feedback-msg"></div>
+            </div>
+
+            <!-- Activity 10 -->
+            <div class="card">
+                <h3>10. Story Mode: Nasreddin Hodja</h3>
+                <p>Complete the story about Hodja. Use the dropdowns.</p>
+                <div class="story-text">
+                    One day, Nasreddin Hodja 
+                    <select class="story-select" id="s1">
+                        <option value="wrong">was riding</option>
+                        <option value="correct">rode</option>
+                    </select>
+                    his donkey to the market. While he 
+                    <select class="story-select" id="s2">
+                        <option value="correct">was going</option>
+                        <option value="wrong">went</option>
+                    </select>
+                    there, his neighbor 
+                    <select class="story-select" id="s3">
+                        <option value="correct">asked</option>
+                        <option value="wrong">was asking</option>
+                    </select>
+                    him a question. Hodja didn't hear him because he 
+                    <select class="story-select" id="s4">
+                        <option value="wrong">thought</option>
+                        <option value="correct">was thinking</option>
+                    </select>
+                    about something else.
+                </div>
+                <div id="act10-feedback" class="feedback-msg"></div>
+                <button class="btn btn-check" onclick="checkActivity10()">Check Story</button>
+            </div>
+
+        </section>
+
+        <footer style="text-align: center; color: #b2bec3; font-size: 0.8rem; margin-top: 50px;">
+            Created for ESL Students in Türkiye • 2025
+        </footer>
+    </div>
 
     <script>
-        // --- SHARED UTILITIES ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const synth = window.speechSynthesis;
-
-        function playSound(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            osc.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            const now = audioCtx.currentTime;
-
-            if (type === 'correct') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
-                gainNode.gain.setValueAtTime(0.2, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-                osc.start(now); osc.stop(now + 0.5);
-            } else if (type === 'wrong') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(100, now + 0.3);
-                gainNode.gain.setValueAtTime(0.2, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                osc.start(now); osc.stop(now + 0.3);
-            } else if (type === 'click') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(400, now);
-                gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                osc.start(now); osc.stop(now + 0.1);
-            } else if (type === 'success') {
-                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
-                    const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-                    o.connect(g); g.connect(audioCtx.destination);
-                    o.frequency.value = freq;
-                    g.gain.setValueAtTime(0.1, now + i*0.1); g.gain.exponentialRampToValueAtTime(0.001, now + i*0.1 + 0.4);
-                    o.start(now + i*0.1); o.stop(now + i*0.1 + 0.4);
-                });
-            }
-        }
-
-        function speakText(text) {
-            if(synth.speaking) synth.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US'; utterance.rate = 0.9;
-            synth.speak(utterance);
-        }
-
-        // --- NEW TRANSLATION ENGINE ---
-
+        /* --- DICTIONARY & TRANSLATION --- */
         const dictionary = {
-            "When": "Ne zaman/dığında", "you": "sen", "visit": "ziyaret etmek", "Gallipoli": "Gelibolu", "can": "-ebilmek", "see": "görmek", "the": "(belirtme)", "huge": "devasa", "statue": "heykel", "of": "-in/-nın", "Seyit": "Seyit", "Onbaşı": "Onbaşı", "shows": "göstermek", "him": "onu", "with": "ile", "a": "bir", "big": "büyük", "shell": "top mermisi", "in": "içinde", "his": "onun", "arms": "kolları", "was": "idi", "an": "bir", "Ottoman": "Osmanlı", "soldier": "asker", "during": "sırasında", "war": "savaş", "Çanakkale": "Çanakkale", "He": "O", "became": "oldu", "After": "Sonra", "years": "yıl", "still": "hâlâ", "serving": "görev yapmak", "Rumeli": "Rumeli", "Mecidiye": "Mecidiye", "Batarya": "Bataryası", "Soldiers": "Askerler", "were": "idiler", "fighting": "savaşmak", "on": "üzerinde", "hills": "tepeler", "and": "ve", "valleys": "vadiler", "under": "altında", "rain": "yağmur", "fire": "ateş", "They": "Onlar", "fired": "ateşledi", "at": "-e/-a", "ship": "gemi", "Queen": "Kraliçe", "Elizabeth": "Elizabeth", "hit": "vurdu", "her": "onu", "enemy": "düşman", "back": "geri", "to": "-e/-a", "killed": "öldürdü", "almost": "neredeyse", "all": "tümü", "Turkish": "Türk", "destroyed": "yok etti", "most": "çoğu", "guns": "silahlar/toplar", "There": "Orada", "dust": "toz", "blood": "kan", "cries": "feryatlar/ağlamalar", "everywhere": "her yerde", "While": "-iken", "commander": "komutan", "walking": "yürümek", "among": "arasında", "dead": "ölü", "saw": "gördü", "stones": "taşlar", "soil": "toprak", "tall": "uzun", "strong": "güçlü", "man": "adam", "helped": "yardım etti", "stand": "ayağa kalkmak", "up": "yukarı", "feet": "ayaklar", "only": "sadece", "one": "bir", "cannon": "top", "good": "iyi", "condition": "durum", "but": "fakat", "it": "o", "didn't": "yapmadı", "work": "çalışmak", "well": "iyi", "moved": "hareket etti", "First": "Önce", "lifted": "kaldırdı", "kg": "kilogram", "help": "yardım", "friend": "arkadaş", "then": "sonra", "put": "koydu", "shoulder": "omuz", "finally": "sonunda", "climbed": "tırmandı", "placed": "yerleştirdi", "His": "Onun", "love": "sevgi", "country": "ülke", "warship": "savaş gemisi", "Ocean": "Ocean (Gemi adı)", "sank": "battı", "British": "İngiliz", "Admiral": "Amiral", "told": "söyledi", "leave": "ayrılmak", "evening": "akşam", "March": "Mart", "sun": "güneş", "going": "gitmek/batmak", "down": "aşağı", "last": "son", "sailing": "denize açılmak", "away": "uzak", "commanders": "komutanlar", "very": "çok", "happy": "mutlu", "Cevat": "Cevat", "Paşa": "Paşa", "Fortified": "Müstahkem", "Zone": "Mevki", "said": "dedi", "left": "terk etti", "our": "bizim", "coast": "kıyı", "could": "-ebilirdi", "not": "değil", "break": "kırmak", "through": "içinden/yarıp geçmek", "will": "-ecek/-acak"
+            // ORIGINAL WORDS
+            "legend": "efsane",
+            "emperor": "imparator",
+            "snake": "yılan",
+            "bite": "ısırmak",
+            "tower": "kule",
+            "sleep": "uyumak",
+            "ring": "çalmak (telefon/zil)",
+            "watch": "izlemek",
+            "electricity": "elektrik",
+            "while": "iken / esnasında",
+            "when": "-dığı zaman",
+            "study": "ders çalışmak",
+            "arrive": "varmak",
+            "rain": "yağmur",
+            "phone": "telefon",
+            "break": "kırmak/bozulmak",
+            
+            // NEW WORDS (Common Interface & Activity Words)
+            "background": "arka plan / geçmiş",
+            "action": "eylem / hareket",
+            "interruption": "kesinti / bölme",
+            "subject": "özne",
+            "gap": "boşluk",
+            "fill": "doldurmak",
+            "challenge": "meydan okuma / zorluk",
+            "logic": "mantık",
+            "match": "eşleştirmek",
+            "scrambled": "karışık",
+            "sentence": "cümle",
+            "speed": "hız",
+            "quiz": "test / sınav",
+            "timer": "zamanlayıcı",
+            "correct": "doğru",
+            "wrong": "yanlış",
+            "try": "denemek",
+            "again": "tekrar",
+            "click": "tıklamak",
+            "drag": "sürüklemek",
+            "drop": "bırakmak",
+            "check": "kontrol et",
+            "answer": "cevap",
+            "position": "konum",
+            "visualizer": "görselleştirici",
+            "mother": "anne",
+            "call": "aramak / seslenmek",
+            "postman": "postacı",
+            "school": "okul",
+            "start": "başlamak",
+            "cook": "yemek pişirmek",
+            "dance": "dans etmek",
+            "music": "müzik",
+            "light": "ışık",
+            "go out": "sönmek / dışarı çıkmak",
+            "fall": "düşmek",
+            "see": "görmek",
+            "stop": "durmak",
+            "donkey": "eşek",
+            "market": "pazar",
+            "neighbor": "komşu",
+            "ask": "sormak",
+            "hear": "duymak",
+            "think": "düşünmek",
+            "something": "bir şey",
+            "else": "başka"
         };
 
-        const storySentences = [
-            {
-                en: "When you visit Gallipoli, you can see the huge statue of Seyit Onbaşı.",
-                tr: "Gelibolu'yu ziyaret ettiğinizde, Seyit Onbaşı'nın devasa heykelini görebilirsiniz."
-            },
-            {
-                en: "The statue shows him with a big shell in his arms.",
-                tr: "Heykel onu kollarında büyük bir top mermisiyle gösterir."
-            },
-            {
-                en: "Seyit Onbaşı was an Ottoman soldier during the war of Çanakkale.",
-                tr: "Seyit Onbaşı, Çanakkale Savaşı sırasında bir Osmanlı askeriydi."
-            },
-            {
-                en: "He became a soldier in 1909.",
-                tr: "1909 yılında asker oldu."
-            },
-            {
-                en: "After 6 years, he was still serving in Çanakkale Rumeli Mecidiye Batarya in 1915.",
-                tr: "6 yıl sonra, 1915'te hala Çanakkale Rumeli Mecidiye Bataryası'nda görev yapıyordu."
-            },
-            {
-                en: "Soldiers were fighting on hills and valleys under a rain of fire.",
-                tr: "Askerler ateş yağmuru altında tepelerde ve vadilerde savaşıyorlardı."
-            },
-            {
-                en: "They fired shells at the ship Queen Elizabeth and hit her.",
-                tr: "Queen Elizabeth gemisine top mermileri attılar ve onu vurdular."
-            },
-            {
-                en: "After that, the enemy fired back to Mecidiye Batarya, killed almost all of the Turkish soldiers and destroyed most of the guns.",
-                tr: "Bundan sonra düşman Mecidiye Bataryası'na karşılık verdi, Türk askerlerinin neredeyse hepsini öldürdü ve topların çoğunu yok etti."
-            },
-            {
-                en: "There was dust, blood and cries everywhere.",
-                tr: "Her yerde toz, kan ve feryatlar vardı."
-            },
-            {
-                en: "While the batarya commander and a soldier were walking among the dead soldiers, they saw a soldier under stones and soil.",
-                tr: "Batarya komutanı ve bir asker ölü askerlerin arasında yürürken, taşların ve toprağın altında bir asker gördüler."
-            },
-            {
-                en: "He was Seyit Onbaşı.",
-                tr: "O, Seyit Onbaşı'ydı."
-            },
-            {
-                en: "He was a tall and strong man.",
-                tr: "Uzun ve güçlü bir adamdı."
-            },
-            {
-                en: "They helped him to stand up.",
-                tr: "Ayağa kalkmasına yardım ettiler."
-            },
-            {
-                en: "When Seyit Onbaşı was on his feet, he saw that there was only one cannon in good condition, but it didn't work well.",
-                tr: "Seyit Onbaşı ayağa kalktığında, iyi durumda sadece bir top olduğunu ama onun da iyi çalışmadığını gördü."
-            },
-            {
-                en: "Seyit moved.",
-                tr: "Seyit hareket etti."
-            },
-            {
-                en: "First, he lifted the 275 kg shell with the help of his friend, then, put it on his shoulder and finally climbed up to the gun and placed the shell.",
-                tr: "Önce arkadaşının yardımıyla 275 kg'lık mermiyi kaldırdı, sonra omzuna koydu ve nihayet topa tırmanıp mermiyi yerleştirdi."
-            },
-            {
-                en: "His love for his country helped him and he fired the cannon.",
-                tr: "Vatan sevgisi ona yardım etti ve topu ateşledi."
-            },
-            {
-                en: "The shell hit the warship Ocean and sank it.",
-                tr: "Mermi Ocean adlı savaş gemisine isabet etti ve onu batırdı."
-            },
-            {
-                en: "The British Admiral told his warships to leave.",
-                tr: "İngiliz Amiral savaş gemilerine ayrılmalarını söyledi."
-            },
-            {
-                en: "In the evening of March 18, while the sun was going down and the last enemy warships were sailing away, Turkish commanders were very happy.",
-                tr: "18 Mart akşamı, güneş batarken ve son düşman gemileri uzaklaşırken, Türk komutanlar çok mutluydu."
-            },
-            {
-                en: "Cevat Paşa, commander of the Çanakkale Fortified Zone, said: \"They left our coast. They could not break through. They will not break through.\"",
-                tr: "Çanakkale Müstahkem Mevki Komutanı Cevat Paşa şöyle dedi: \"Kıyımızı terk ettiler. Geçemediler. Geçemeyecekler.\""
-            }
-        ];
+        const tooltip = document.getElementById('tooltip');
 
-        function renderStory() {
-            const container = document.getElementById('story-container');
-            container.innerHTML = '';
-
-            storySentences.forEach((item, idx) => {
-                const sWrapper = document.createElement('div');
-                sWrapper.className = 'sentence-wrapper';
-                sWrapper.onclick = () => toggleSentenceTr(idx);
-
-                const pEn = document.createElement('p');
-                pEn.className = 'flex items-start mb-1';
+        document.body.addEventListener('click', (e) => {
+            if (e.target.classList.contains('translatable')) {
+                const term = e.target.getAttribute('data-term');
+                const trans = dictionary[term] || "No translation found";
                 
-                // Audio Button for Sentence
-                const audioBtn = document.createElement('button');
-                audioBtn.innerHTML = '🔊';
-                audioBtn.className = 'sent-audio-btn flex-shrink-0';
-                audioBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    speakText(item.en);
-                    audioBtn.classList.add('animate-ping');
-                    setTimeout(() => audioBtn.classList.remove('animate-ping'), 1000);
-                };
-
-                // Text container
-                const textSpan = document.createElement('span');
+                // Position tooltip above word
+                const rect = e.target.getBoundingClientRect();
+                tooltip.innerText = trans;
+                tooltip.style.display = 'block';
+                tooltip.style.top = (window.scrollY + rect.top) + 'px';
+                tooltip.style.left = (window.scrollX + rect.left + (rect.width/2)) + 'px';
                 
-                const words = item.en.split(' ');
-                words.forEach(word => {
-                    const cleanWord = word.replace(/[.,":;]/g, ''); 
-                    const trMeaning = dictionary[cleanWord] || "?";
-                    
-                    const span = document.createElement('span');
-                    span.className = 'interactive-word';
-                    span.textContent = word + ' '; 
-                    span.onclick = (e) => showWordTooltip(e, cleanWord, trMeaning);
-                    textSpan.appendChild(span);
-                });
-
-                pEn.appendChild(audioBtn);
-                pEn.appendChild(textSpan);
-
-                const pTr = document.createElement('p');
-                pTr.id = `tr-sent-${idx}`;
-                pTr.className = 'tr-sentence';
-                pTr.textContent = item.tr;
-
-                sWrapper.appendChild(pEn);
-                sWrapper.appendChild(pTr);
-                container.appendChild(sWrapper);
-            });
-        }
-
-        function toggleSentenceTr(idx) {
-            const trEl = document.getElementById(`tr-sent-${idx}`);
-            if(trEl.style.display === 'block') {
-                trEl.style.display = 'none';
+                setTimeout(() => tooltip.style.display = 'none', 2000);
             } else {
-                document.querySelectorAll('.tr-sentence').forEach(el => el.style.display = 'none'); 
-                trEl.style.display = 'block';
-            }
-        }
-
-        function showWordTooltip(e, word, meaning) {
-            e.stopPropagation(); 
-            const tooltip = document.getElementById('word-tooltip');
-            tooltip.textContent = `${word} : ${meaning}`;
-            tooltip.style.display = 'block';
-            
-            const rect = e.target.getBoundingClientRect();
-            const scrollX = window.pageXOffset;
-            const scrollY = window.pageYOffset;
-
-            tooltip.style.left = (rect.left + scrollX + (rect.width / 2) - (tooltip.offsetWidth / 2)) + 'px';
-            tooltip.style.top = (rect.top + scrollY - 35) + 'px';
-
-            setTimeout(() => {
                 tooltip.style.display = 'none';
-            }, 3000);
-        }
-        
-        renderStory();
-
-        // --- TAB & AUDIO LOGIC ---
-
-        function readStory() {
-            if(synth.speaking) synth.cancel();
-            const btn = document.getElementById('btn-play-story');
-            btn.classList.add('speaking-anim');
-            const fullText = storySentences.map(s => s.en).join(" ");
-            const utterance = new SpeechSynthesisUtterance(fullText);
-            utterance.lang = 'en-US'; utterance.rate = 0.9;
-            utterance.onend = () => btn.classList.remove('speaking-anim');
-            synth.speak(utterance);
-        }
-
-        function stopSpeaking() {
-            synth.cancel();
-            const btn = document.getElementById('btn-play-story');
-            if(btn) btn.classList.remove('speaking-anim');
-        }
-
-        function switchTab(tabId) {
-            stopSpeaking();
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-orange-500', 'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'text-white', 'shadow-md');
-                btn.classList.add('bg-white');
-            });
-            const activeBtn = document.getElementById('btn-' + tabId);
-            activeBtn.classList.remove('bg-white');
-            if(tabId === 'reading') activeBtn.classList.add('bg-orange-500', 'text-white', 'shadow-md');
-            if(tabId === 'grammar') activeBtn.classList.add('bg-blue-500', 'text-white', 'shadow-md');
-            if(tabId === 'timeline') activeBtn.classList.add('bg-green-500', 'text-white', 'shadow-md');
-            if(tabId === 'vocab') activeBtn.classList.add('bg-purple-500', 'text-white', 'shadow-md');
-        }
-
-        // --- EXERCISES LOGIC ---
-        
-        // UPDATED QUIZ QUESTIONS
-        const quizData = [
-            { q: "Who was Seyit Onbaşı?", opts: ["An Ottoman soldier", "A British Admiral", "A school teacher", "A tourist in Gallipoli"], a: 0 },
-            { q: "What happened when the enemy fired back?", opts: ["They killed almost all soldiers", "They missed the target", "They surrendered immediately", "They ran away scared"], a: 0 },
-            { q: "What were the commander and a soldier doing when they found Seyit?", opts: ["Walking among the dead soldiers", "Firing the cannons", "Eating dinner", "Sleeping in the tent"], a: 0 },
-            { q: "What was Seyit Onbaşı like?", opts: ["Short and weak", "Tall and strong", "Old and tired", "Young and fearful"], a: 1 },
-            { q: "How many cannons were in good condition?", opts: ["Five", "Ten", "None", "Only one"], a: 3 },
-            { q: "Who fired the cannon?", opts: ["The Commander", "Seyit Onbaşı", "The British Admiral", "The soldier's friend"], a: 1 },
-            { q: "What was happening when the sun was going down?", opts: ["The last enemy warships were sailing away", "The battle was just starting", "It started to rain heavily", "More enemy ships arrived"], a: 0 }
-        ];
-        const quizContainer = document.getElementById('quiz-container');
-        quizData.forEach((item, idx) => {
-            const qDiv = document.createElement('div');
-            qDiv.className = "bg-white p-4 rounded-lg shadow border border-gray-100";
-            qDiv.innerHTML = `<p class="font-semibold text-gray-800 mb-3">${idx + 1}. ${item.q}</p>`;
-            const optDiv = document.createElement('div');
-            optDiv.className = "space-y-2";
-            item.opts.forEach((opt, optIdx) => {
-                const btn = document.createElement('button');
-                btn.className = "w-full text-left px-4 py-2 rounded-md transition-colors bg-gray-50 hover:bg-gray-100 text-gray-700 border border-transparent text-sm";
-                btn.textContent = opt;
-                btn.onclick = () => {
-                    Array.from(optDiv.children).forEach(b => { b.className = "w-full text-left px-4 py-2 rounded-md bg-gray-50 text-gray-400 text-sm"; b.disabled = true; });
-                    if(optIdx === item.a) {
-                        btn.className = "w-full text-left px-4 py-2 rounded-md bg-green-100 text-green-800 border-l-4 border-green-500 font-medium correct-anim text-sm";
-                        btn.innerHTML += ' ✅'; playSound('correct');
-                    } else {
-                        btn.className = "w-full text-left px-4 py-2 rounded-md bg-red-100 text-red-800 border-l-4 border-red-500 text-sm";
-                        btn.innerHTML += ' ❌'; playSound('wrong');
-                    }
-                };
-                optDiv.appendChild(btn);
-            });
-            qDiv.appendChild(optDiv);
-            quizContainer.appendChild(qDiv);
+            }
         });
 
-        // True/False
-        const tfData = [
-            { s: "Seyit Onbaşı served in the Çanakkale war in 1915.", a: true },
-            { s: "The statue shows him holding a rifle.", a: false },
-            { s: "He lifted the shell alone with the help of a friend.", a: true },
-            { s: "The British Admiral ordered his ships to attack more.", a: false }
-        ];
-        const tfContainer = document.getElementById('tf-container');
-        tfData.forEach((item, i) => {
-            const row = document.createElement('div');
-            row.className = "flex flex-col sm:flex-row items-center justify-between bg-gray-50 p-3 rounded border border-gray-100";
-            row.innerHTML = `
-                <span class="text-gray-800 mb-2 sm:mb-0 text-sm flex-1 mr-2">${item.s}</span>
-                <div class="flex gap-2">
-                    <button onclick="checkTF(this, ${item.a}, true)" class="px-3 py-1 rounded border border-green-600 text-green-600 hover:bg-green-50 font-bold text-xs">TRUE</button>
-                    <button onclick="checkTF(this, ${item.a}, false)" class="px-3 py-1 rounded border border-red-600 text-red-600 hover:bg-red-50 font-bold text-xs">FALSE</button>
-                </div>
-            `;
-            tfContainer.appendChild(row);
+        /* --- ACTIVITY 1: TIMELINE DRAG --- */
+        const sliderBar = document.getElementById('sliderBar');
+        const sliderIcon = document.getElementById('sliderIcon');
+        const sliderProgress = document.getElementById('sliderProgress');
+        let sliderVal = 5; // percentage
+
+        // Simple click-to-move logic (mobile friendly)
+        sliderBar.addEventListener('click', (e) => {
+            const rect = sliderBar.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            let percent = (x / rect.width) * 100;
+            if(percent < 5) percent = 5;
+            if(percent > 95) percent = 95;
+            
+            sliderIcon.style.left = percent + '%';
+            sliderProgress.style.width = percent + '%';
+            sliderVal = percent;
         });
-        function checkTF(btn, correctVal, clickedVal) {
-            const parent = btn.parentElement;
-            Array.from(parent.children).forEach(b => b.disabled = true);
-            if(correctVal === clickedVal) {
-                btn.classList.add('bg-green-600', 'text-white', 'border-green-600', 'correct-anim');
-                playSound('correct');
+
+        function checkActivity1() {
+            // Target is around 70-80% (late in the action)
+            const feedback = document.getElementById('act1-feedback');
+            if (sliderVal > 60 && sliderVal < 85) {
+                feedback.innerHTML = "<span class='correct-text'>Correct! The electricity went out *during* the movie.</span>";
             } else {
-                btn.classList.add('bg-red-600', 'text-white', 'border-red-600');
-                playSound('wrong');
+                feedback.innerHTML = "<span class='wrong-text'>Try again! The interruption usually happens in the middle or late part.</span>";
             }
         }
 
-        // Grammar
-        const grammarData = [
-            { id: 1, pre: "She left home while her baby", answer: "was sleeping", post: "." },
-            { id: 2, pre: "Mostly women and elderly people", answer: "were fighting", post: "there." },
-            { id: 3, pre: "Nene Hatun", answer: "was holding", post: "her brother's bayonet." },
-            { id: 4, pre: "Dead bodies", answer: "were lying", post: "around." },
-        ];
-        const gContainer = document.getElementById('grammar-container');
-        grammarData.forEach(item => {
-            const div = document.createElement('div');
-            div.className = "flex flex-col md:flex-row md:items-center gap-2 pb-4 border-b border-gray-100 last:border-0";
-            div.innerHTML = `
-                <span class="text-gray-700 text-sm md:text-base">${item.id}. ${item.pre}</span>
-                <div class="flex items-center gap-2">
-                    <input type="text" id="g-input-${item.id}" class="border-2 px-2 py-1 rounded w-32 border-gray-300 focus:border-blue-400 focus:outline-none" placeholder="verb + ing">
-                    <button onclick="checkGrammar(${item.id}, '${item.answer}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 shadow-sm">Check</button>
-                </div>
-                <span class="text-gray-700 text-sm md:text-base">${item.post}</span>
-            `;
-            gContainer.appendChild(div);
-        });
-        function checkGrammar(id, correct) {
-            const input = document.getElementById(`g-input-${id}`);
-            const val = input.value.trim().toLowerCase();
-            if(val === correct) {
-                input.classList.replace('border-gray-300', 'border-green-500');
-                input.classList.add('bg-green-50');
-                playSound('correct');
-            } else {
-                input.classList.replace('border-gray-300', 'border-red-500');
-                input.classList.add('bg-red-50');
-                playSound('wrong');
-            }
+        /* --- ACTIVITY 2: GAP FILL --- */
+        function checkActivity2() {
+            const inputs = document.querySelectorAll('.gap-input');
+            let correctCount = 0;
+            inputs.forEach(input => {
+                const userAns = input.value.toLowerCase().trim();
+                const correctAns = input.getAttribute('data-ans');
+                if (userAns === correctAns) {
+                    input.style.borderColor = "#00b894";
+                    correctCount++;
+                } else {
+                    input.style.borderColor = "#d63031";
+                }
+            });
+            const feedback = document.getElementById('act2-feedback');
+            if(correctCount === inputs.length) feedback.innerHTML = "<span class='correct-text'>Perfect Score! Harika!</span>";
+            else feedback.innerHTML = "Check the red boxes again.";
         }
 
-        // Scramble
-        const correctScramble = "He was carrying a heavy shell";
-        const scrambledWords = ["heavy", "carrying", "was", "He", "shell", "a"];
-        let currentScramble = [];
-        const dropzone = document.getElementById('scramble-dropzone');
-        const bank = document.getElementById('scramble-bank');
-        const feedback = document.getElementById('scramble-feedback');
+        /* --- ACTIVITY 3: LOGIC MATCH --- */
+        const pairs = [
+            { id: 1, text: "While I was cooking...", match: 1, side: 'left' },
+            { id: 2, text: "When the teacher entered...", match: 2, side: 'left' },
+            { id: 3, text: "...I cut my finger.", match: 1, side: 'right' },
+            { id: 4, text: "...everyone stood up.", match: 2, side: 'right' }
+        ];
+        
+        // Shuffle helper
+        const shuffle = arr => arr.sort(() => Math.random() - 0.5);
+
+        const matchGrid = document.getElementById('matchGrid');
+        let selectedItem = null;
+
+        function initMatch() {
+            matchGrid.innerHTML = '';
+            const leftSide = pairs.filter(p => p.side === 'left');
+            const rightSide = shuffle(pairs.filter(p => p.side === 'right'));
+            
+            const allItems = shuffle([...leftSide, ...rightSide]);
+            
+            allItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'match-item';
+                div.innerText = item.text;
+                div.dataset.id = item.id;
+                div.dataset.match = item.match;
+                div.onclick = () => handleMatchClick(div);
+                matchGrid.appendChild(div);
+            });
+        }
+        
+        function handleMatchClick(div) {
+            if(div.classList.contains('correct')) return;
+
+            if (!selectedItem) {
+                selectedItem = div;
+                div.classList.add('selected');
+            } else {
+                if (selectedItem === div) {
+                    div.classList.remove('selected');
+                    selectedItem = null;
+                    return;
+                }
+
+                if (selectedItem.dataset.match === div.dataset.match) {
+                    div.classList.add('correct');
+                    selectedItem.classList.add('correct');
+                    selectedItem.classList.remove('selected');
+                    selectedItem = null;
+                    document.getElementById('act3-feedback').innerText = "Match found!";
+                } else {
+                    selectedItem.classList.remove('selected');
+                    div.classList.add('wrong-text'); // temp flash
+                    setTimeout(() => div.classList.remove('wrong-text'), 500);
+                    selectedItem = null;
+                    document.getElementById('act3-feedback').innerText = "Not a match. Try again.";
+                }
+            }
+        }
+        initMatch();
+
+        /* --- ACTIVITY 4: SCRAMBLED --- */
+        const correctSentence = ["While", "she", "was", "running", "she", "lost", "her", "keys"];
+        let currentSentence = [];
+        
+        const wordBank = document.getElementById('wordBank');
+        const sentenceArea = document.getElementById('sentenceArea');
+
         function initScramble() {
-            bank.innerHTML = ''; dropzone.innerHTML = ''; currentScramble = [];
-            feedback.textContent = ''; 
-            dropzone.classList.remove('border-green-500'); dropzone.classList.add('border-blue-300');
-            scrambledWords.forEach(word => {
-                const btn = document.createElement('button');
-                btn.textContent = word;
-                btn.className = "px-3 py-1 bg-white border border-blue-400 text-blue-700 rounded shadow hover:bg-blue-50 word-move text-sm";
-                btn.onclick = () => addToZone(btn, word);
-                bank.appendChild(btn);
+            const shuffled = shuffle([...correctSentence]);
+            shuffled.forEach(word => {
+                createBubble(word, wordBank);
             });
+        }
+
+        function createBubble(text, parent) {
+            const bubble = document.createElement('div');
+            bubble.className = 'word-bubble';
+            bubble.innerText = text;
+            bubble.onclick = () => {
+                if (parent === wordBank) {
+                    sentenceArea.appendChild(bubble);
+                    createBubble(text, null); // ghost logic handled by moving dom node
+                } else {
+                    wordBank.appendChild(bubble);
+                }
+            };
+            parent.appendChild(bubble);
+        }
+
+        function checkActivity4() {
+            const currentWords = Array.from(sentenceArea.children).map(c => c.innerText);
+            const feedback = document.getElementById('act4-feedback');
+            
+            if (JSON.stringify(currentWords) === JSON.stringify(correctSentence)) {
+                feedback.innerHTML = "<span class='correct-text'>Correct! Looks good.</span>";
+            } else {
+                feedback.innerHTML = "<span class='wrong-text'>Incorrect order. Try again!</span>";
+            }
         }
         initScramble();
-        function addToZone(btn, word) {
-            playSound('click'); btn.remove();
-            const newBtn = document.createElement('button');
-            newBtn.textContent = word;
-            newBtn.className = "px-3 py-1 bg-blue-100 border border-blue-500 text-blue-900 rounded shadow hover:bg-red-50 word-move text-sm";
-            newBtn.onclick = () => returnToBank(newBtn, word);
-            dropzone.appendChild(newBtn);
-            currentScramble.push(word);
-            checkScramble();
+
+        /* --- ACTIVITY 5: MAIDEN'S TOWER --- */
+        let currentVerbEl = null;
+        const verbModal = document.getElementById('verbModal');
+
+        document.querySelectorAll('.verb-click').forEach(span => {
+            span.addEventListener('click', (e) => {
+                currentVerbEl = e.target;
+                const rect = e.target.getBoundingClientRect();
+                verbModal.style.display = 'block';
+                verbModal.style.top = (window.scrollY + rect.bottom + 5) + 'px';
+                verbModal.style.left = (window.scrollX + rect.left) + 'px';
+            });
+        });
+
+        function ansVerb(type) {
+            if(!currentVerbEl) return;
+            const correctType = currentVerbEl.getAttribute('data-type');
+            
+            if(type === correctType) {
+                currentVerbEl.style.backgroundColor = type === 'while' ? 'var(--color-while)' : 'var(--color-when)';
+                currentVerbEl.style.color = '#2d3436';
+                document.getElementById('act5-feedback').innerText = "Correct!";
+            } else {
+                document.getElementById('act5-feedback').innerText = "Oops! Wrong tense logic.";
+            }
+            verbModal.style.display = 'none';
         }
-        function returnToBank(btn, word) {
-            playSound('click'); btn.remove();
-            const newBtn = document.createElement('button');
-            newBtn.textContent = word;
-            newBtn.className = "px-3 py-1 bg-white border border-blue-400 text-blue-700 rounded shadow hover:bg-blue-50 word-move text-sm";
-            newBtn.onclick = () => addToZone(newBtn, word);
-            bank.appendChild(newBtn);
-            currentScramble = currentScramble.filter(w => w !== word);
-            feedback.textContent = '';
+
+        /* --- ACTIVITY 6: SPEED QUIZ --- */
+        const questions = [
+            { text: "_____ I was sleeping, mom cooked.", ans: "While" },
+            { text: "I was running _____ I fell.", ans: "When" },
+            { text: "_____ he saw the accident, he stopped.", ans: "When" },
+            { text: "They were dancing _____ the music stopped.", ans: "When" },
+            { text: "_____ we were studying, the lights went out.", ans: "While" }
+        ];
+        let qIndex = 0;
+        let score = 0;
+        let timerInterval;
+
+        function startQuiz() {
+            qIndex = 0;
+            score = 0;
+            nextQuestion();
         }
-        function checkScramble() {
-            if(currentScramble.join(" ") === correctScramble) {
-                playSound('correct');
-                feedback.textContent = "Correct! Well done.";
-                feedback.classList.add('text-green-600');
-                dropzone.classList.replace('border-blue-300', 'border-green-500');
+
+        function nextQuestion() {
+            if(qIndex >= questions.length) {
+                document.getElementById('quizQ').innerText = `Game Over! Score: ${score}/${questions.length}`;
+                return;
+            }
+            
+            const q = questions[qIndex];
+            document.getElementById('quizQ').innerText = q.text;
+            let time = 5;
+            document.getElementById('timer').innerText = "0" + time;
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                time--;
+                document.getElementById('timer').innerText = "0" + time;
+                if(time <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('quiz-feedback').innerText = "Time's up!";
+                    qIndex++;
+                    setTimeout(nextQuestion, 1000);
+                }
+            }, 1000);
+        }
+
+        function ansQuiz(ans) {
+            clearInterval(timerInterval);
+            const correct = questions[qIndex].ans;
+            const feedback = document.getElementById('quiz-feedback');
+            
+            if(ans === correct) {
+                score++;
+                feedback.innerHTML = "<span class='correct-text'>Correct!</span>";
+            } else {
+                feedback.innerHTML = "<span class='wrong-text'>Wrong!</span>";
+            }
+            qIndex++;
+            setTimeout(nextQuestion, 1000);
+        }
+
+        /* --- ACTIVITY 7: EMOJI DECODER --- */
+        function checkAct7(index) {
+            // Correct answer is index 0
+            const feedback = document.getElementById('act7-feedback');
+            if(index === 0) {
+                feedback.innerHTML = "<span class='correct-text'>Correct! 'While' introduces the long action (running).</span>";
+            } else {
+                feedback.innerHTML = "<span class='wrong-text'>Incorrect. Look at which action is 'Long' vs 'Short'.</span>";
             }
         }
-        function resetScramble() { initScramble(); }
 
-        // Timeline
-        const timelineEvents = [
-            { id: 'a', text: "Nene Hatun's brother got wounded and died.", order: 1 },
-            { id: 'd', text: "The Russian Army captured Fort Aziziye.", order: 2 },
-            { id: 'b', text: "She kissed her brother's head.", order: 3 },
-            { id: 'e', text: "She took her brother's bayonet.", order: 4 },
-            { id: 'c', text: "She went to the battlefield.", order: 5 },
-            { id: 'f', text: "Her son Yusuf died.", order: 6 },
+        /* --- ACTIVITY 8: WAS OR WERE --- */
+        const wwQuestions = [
+            { t: "They _____ sleeping.", a: "were" },
+            { t: "I _____ working.", a: "was" },
+            { t: "The cats _____ playing.", a: "were" },
+            { t: "It _____ raining.", a: "was" }
         ];
-        let currentStep = 1;
-        const statusEl = document.getElementById('timeline-status');
-        const tlContainer = document.getElementById('timeline-container');
-        function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
-        shuffle(timelineEvents).forEach(ev => {
-            const btn = document.createElement('button');
-            btn.className = "timeline-item p-3 rounded-lg text-left transition-all duration-300 border bg-white border-gray-200 hover:border-green-400 hover:shadow-sm group";
-            btn.setAttribute('data-order', ev.order);
-            btn.innerHTML = `<div class="flex items-center gap-3 pointer-events-none"><div class="w-6 h-6 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-xs font-bold border border-gray-300 group-hover:bg-green-50 group-hover:text-green-600">?</div><span class="text-sm md:text-base text-gray-700">${ev.text}</span></div>`;
-            btn.onclick = function() {
-                const order = parseInt(this.getAttribute('data-order'));
-                if(order === currentStep) {
-                    this.classList.remove('bg-white', 'border-gray-200');
-                    this.classList.add('bg-green-100', 'border-green-500', 'opacity-80', 'order-last');
-                    this.querySelector('.rounded-full').innerHTML = '✓';
-                    this.querySelector('.rounded-full').className = 'w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center text-xs font-bold';
-                    this.disabled = true;
-                    currentStep++; playSound('correct');
-                    statusEl.textContent = "Correct! What happened next?";
-                    if(currentStep > 6) {
-                        document.getElementById('timeline-success').classList.remove('hidden');
-                        statusEl.textContent = "All done! History restored.";
-                        playSound('success');
-                    }
-                } else if (order < currentStep) {
-                    statusEl.textContent = "You already did that one!";
-                } else {
-                    statusEl.textContent = "Incorrect order. Try again!";
-                    playSound('wrong');
-                }
-            };
-            tlContainer.appendChild(btn);
-        });
+        let wwIndex = 0;
+        function checkAct8(ans) {
+            const currentQ = wwQuestions[wwIndex];
+            const feedback = document.getElementById('act8-feedback');
+            if (ans === currentQ.a) {
+                feedback.innerHTML = "<span class='correct-text'>Correct!</span>";
+                wwIndex = (wwIndex + 1) % wwQuestions.length;
+                setTimeout(() => {
+                    document.getElementById('wwSentence').innerText = wwQuestions[wwIndex].t;
+                    feedback.innerText = "";
+                }, 1000);
+            } else {
+                feedback.innerHTML = "<span class='wrong-text'>Try again!</span>";
+            }
+        }
 
-        // Cause & Effect
-        const pairs = [
-            { c: "The shell hit the ship", e: "The ship sank" },
-            { c: "The Russians attacked", e: "Nene Hatun joined the fight" },
-            { c: "Seyit was very strong", e: "He could lift 275kg" },
-            { c: "He loved his country", e: "He fought bravely" }
-        ];
-        let selectedCause = null;
-        const causes = pairs.map((p, i) => ({txt: p.c, id: i}));
-        const effects = pairs.map((p, i) => ({txt: p.e, id: i})).sort(() => Math.random() - 0.5);
-        const colC = document.getElementById('col-causes');
-        const colE = document.getElementById('col-effects');
-        causes.forEach(item => {
-            const btn = document.createElement('button');
-            btn.className = "w-full p-3 bg-orange-50 border border-orange-200 rounded text-sm text-left hover:bg-orange-100 transition";
-            btn.textContent = item.txt;
-            btn.onclick = () => {
-                playSound('click');
-                document.querySelectorAll('#col-causes button').forEach(b => b.classList.remove('ring-2', 'ring-orange-400', 'bg-orange-200'));
-                btn.classList.add('ring-2', 'ring-orange-400', 'bg-orange-200');
-                selectedCause = { id: item.id, el: btn };
-            };
-            colC.appendChild(btn);
-        });
-        effects.forEach(item => {
-            const btn = document.createElement('button');
-            btn.className = "w-full p-3 bg-blue-50 border border-blue-200 rounded text-sm text-left hover:bg-blue-100 transition";
-            btn.textContent = item.txt;
-            btn.onclick = () => {
-                if(!selectedCause) return;
-                if(selectedCause.id === item.id) {
-                    playSound('correct');
-                    btn.classList.add('bg-green-100', 'text-gray-400', 'line-through', 'border-green-200');
-                    selectedCause.el.classList.add('bg-green-100', 'text-gray-400', 'line-through', 'border-green-200');
-                    selectedCause.el.classList.remove('ring-2', 'ring-orange-400', 'bg-orange-200');
-                    btn.disabled = true; selectedCause.el.disabled = true;
-                    selectedCause = null;
-                } else {
-                    playSound('wrong');
-                    btn.classList.add('bg-red-100');
-                    setTimeout(() => btn.classList.remove('bg-red-100'), 500);
-                }
-            };
-            colE.appendChild(btn);
-        });
+        /* --- ACTIVITY 9: SPOT MISTAKE --- */
+        function checkAct9(el, isError) {
+            const feedback = document.getElementById('act9-feedback');
+            if (isError) {
+                el.style.backgroundColor = '#00b894';
+                el.style.color = 'white';
+                feedback.innerHTML = "<span class='correct-text'>Yes! 'I' uses 'was', not 'were'.</span>";
+            } else {
+                el.style.backgroundColor = '#fab1a0';
+                feedback.innerHTML = "<span class='wrong-text'>This word is correct. Find the mistake!</span>";
+            }
+        }
 
-        // Vocab
-        const vocabList = [
-            { word: "Capture", def: "Take into one's possession or control by force" },
-            { word: "Unconscious", def: "Not awake and aware of one's environment" },
-            { word: "Battlefield", def: "Arena of war" },
-            { word: "Martyr", def: "A person who is killed because of his/her beliefs" }
-        ];
-        const vList = document.getElementById('vocab-list');
-        vocabList.forEach(v => {
-            const safeDef = v.def.replace(/'/g, "\\'");
-            vList.innerHTML += `
-                <div class="bg-white p-3 rounded-lg shadow-sm border border-purple-100 hover:shadow-md transition flex justify-between items-center group cursor-pointer" onclick="speakText('${v.word}. ${safeDef}')">
-                    <div><span class="font-bold text-purple-700 block group-hover:text-purple-900">${v.word}</span><span class="text-xs text-gray-600">${v.def}</span></div>
-                    <div class="text-purple-300 group-hover:text-purple-600">🔊</div>
-                </div>`;
-        });
+        /* --- ACTIVITY 10: STORY MODE --- */
+        function checkActivity10() {
+            const s1 = document.getElementById('s1').value;
+            const s2 = document.getElementById('s2').value;
+            const s3 = document.getElementById('s3').value;
+            const s4 = document.getElementById('s4').value;
+            const feedback = document.getElementById('act10-feedback');
 
-        // Pronunciation
-        const pronunciationWords = [
-            { word: "Wanted", type: "/id/" }, { word: "Looked", type: "/t/" },
-            { word: "Cleaned", type: "/d/" }, { word: "Decided", type: "/id/" },
-            { word: "Kissed", type: "/t/" }, { word: "Saved", type: "/d/" }
-        ];
-        const pList = document.getElementById('pronunciation-list');
-        pronunciationWords.forEach(w => {
-            let color = w.type === '/id/' ? 'bg-blue-100 text-blue-600' : w.type === '/t/' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
-            pList.innerHTML += `
-                <button onclick="speakText('${w.word}'); playSound('click')" class="w-full flex justify-between items-center bg-white p-2 rounded-lg border border-gray-100 shadow-sm hover:bg-pink-50 transition text-left">
-                    <span class="text-gray-800 text-sm font-medium flex items-center gap-2">🔊 ${w.word}</span>
-                    <span class="text-xs font-bold font-mono px-2 py-1 rounded-full ${color}">${w.type}</span>
-                </button>`;
-        });
-
-        // Spelling
-        const spellingWords = ["statue", "soldier", "valley", "cannon"];
-        const spellCont = document.getElementById('spelling-container');
-        spellingWords.forEach(word => {
-            const wrapper = document.createElement('div');
-            wrapper.className = "bg-white p-3 rounded shadow border flex items-center gap-2";
-            wrapper.innerHTML = `
-                <button onclick="speakText('${word}')" class="bg-yellow-100 p-2 rounded-full hover:bg-yellow-200 text-yellow-700 transition"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
-                <input type="text" class="border-b-2 border-gray-300 focus:border-yellow-500 outline-none w-24 text-center text-sm p-1" placeholder="Type here">
-                <button class="check-btn text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300 transition">Check</button>
-            `;
-            const input = wrapper.querySelector('input');
-            const checkBtn = wrapper.querySelector('.check-btn');
-            checkBtn.onclick = () => {
-                if(input.value.toLowerCase().trim() === word) {
-                    playSound('correct');
-                    input.classList.add('text-green-600', 'font-bold'); input.disabled = true;
-                    checkBtn.textContent = "✔"; checkBtn.classList.replace('bg-gray-200', 'bg-green-200');
-                } else {
-                    playSound('wrong');
-                    input.classList.add('text-red-600');
-                    setTimeout(() => input.classList.remove('text-red-600'), 500);
-                }
-            };
-            spellCont.appendChild(wrapper);
-        });
+            if (s1 === 'correct' && s2 === 'correct' && s3 === 'correct' && s4 === 'correct') {
+                feedback.innerHTML = "<span class='correct-text'>Excellent! You fixed the story.</span>";
+            } else {
+                feedback.innerHTML = "<span class='wrong-text'>Some parts are wrong. Remember: 'While' + Continuous.</span>";
+            }
+        }
 
     </script>
 </body>
 </html>
-
