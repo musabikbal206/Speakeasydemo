@@ -56,7 +56,6 @@
 <body class="bg-gray-900 h-[100dvh] w-screen flex items-center justify-center font-sans overflow-hidden select-none">
 
     <!-- PHONE CONTAINER -->
-    <!-- On desktop: Fixed width/height. On mobile: Full width/height -->
     <div class="relative w-full h-full sm:w-[375px] sm:h-[812px] bg-ios-bg dark:bg-black sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col border-0 sm:border-[6px] border-gray-800">
         
         <!-- STATUS BAR -->
@@ -107,6 +106,7 @@
                             <span class="text-black dark:text-white font-medium">Gemini API Key</span>
                         </div>
                         <input type="password" id="api-key-input" placeholder="Paste Key Here" class="w-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-ios-blue" onchange="saveSettings()">
+                        <p class="text-[10px] text-gray-400 mt-1">Using Model: gemini-2.5-flash-preview</p>
                     </div>
                     
                     <!-- Language -->
@@ -414,14 +414,16 @@
             updateMicUI('processing');
             APP.state.transcript.push({role:'user', text});
 
-            let responseText = "I heard: " + text + ". (No API Key)";
-            
-            if(APP.settings.apiKey) {
-                responseText = await fetchGemini(text);
-            } else {
-                await new Promise(r => setTimeout(r, 1000));
+            if(!APP.settings.apiKey) {
+                 APP.state.processing = false;
+                 speakAI("Please enter your API Key in Settings first.");
+                 return;
             }
 
+            let responseText = "";
+            
+            responseText = await fetchGemini(text);
+            
             APP.state.processing = false;
             speakAI(responseText);
         }
@@ -456,14 +458,22 @@
             `;
 
             try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${APP.settings.apiKey}`, {
+                // Updated to Gemini 2.5 Flash Preview
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${APP.settings.apiKey}`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
                 const data = await res.json();
+                
+                if (data.error) {
+                    console.error("Gemini API Error", data.error);
+                    return "Sorry, I had an error connecting to the AI.";
+                }
+
                 return data.candidates[0].content.parts[0].text;
             } catch(e) {
+                console.error(e);
                 return "Error connecting to AI.";
             }
         }
@@ -491,6 +501,5 @@
     </script>
 </body>
 </html>
-
 
 
