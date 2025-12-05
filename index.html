@@ -1,796 +1,465 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grammar Lab: When vs. While (Classroom Edition)</title>
-    <style>
-        /* --- CSS VARIABLES & RESET --- */
-        :root {
-            --color-bg: #fdfbf7;
-            --color-text: #2d3436;
-            --color-while: #b8e994; /* Mint Green */
-            --color-while-dark: #78e08f;
-            --color-when: #fab1a0; /* Coral Red */
-            --color-when-dark: #e17055;
-            --color-accent: #74b9ff;
-            --color-purple: #a29bfe;
-            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            --radius: 12px;
-            --shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: var(--font-main);
-            background-color: var(--color-bg);
-            color: var(--color-text);
-            line-height: 1.6;
-            padding-bottom: 50px;
-        }
-
-        /* --- LAYOUT UTILITIES --- */
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        h1, h2, h3 { color: #2d3436; margin-bottom: 10px; }
-        h1 { text-align: center; margin-bottom: 30px; font-size: 2.5rem; }
-        
-        .card {
-            background: white;
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow);
-            border: 1px solid #eee;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: transform 0.1s;
-        }
-        .btn:active { transform: scale(0.98); }
-        .btn-check { background-color: var(--color-accent); color: white; display: block; margin: 20px auto 0; }
-        
-        /* Teacher Tools Buttons */
-        .btn-teacher { background-color: var(--color-purple); color: white; margin: 5px; }
-
-        /* --- TRANSLATION TOOLTIP SYSTEM --- */
-        .translatable {
-            border-bottom: 2px dotted #b2bec3;
-            cursor: help;
-            transition: background 0.2s;
-        }
-        .translatable:hover { background-color: #ffeaa7; }
-
-        #tooltip {
-            position: absolute;
-            background: #2d3436;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            pointer-events: none;
-            display: none;
-            z-index: 1000;
-            transform: translate(-50%, -40px);
-        }
-        #tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: #2d3436 transparent transparent transparent;
-        }
-
-        /* --- PART 1: VISUAL GRAMMAR LAB --- */
-        .formula-container {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .formula-box {
-            padding: 15px;
-            border-radius: var(--radius);
-            font-weight: bold;
-            text-align: center;
-            flex: 1;
-            min-width: 280px;
-        }
-
-        .box-while { background-color: var(--color-while); border: 2px solid var(--color-while-dark); }
-        .box-when { background-color: var(--color-when); border: 2px solid var(--color-when-dark); }
-
-        .timeline-visual {
-            position: relative;
-            height: 100px;
-            margin: 30px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* The Long Action (While) */
-        .timeline-line {
-            width: 80%;
-            height: 12px;
-            background: linear-gradient(90deg, var(--color-while-dark) 0%, var(--color-while) 100%);
-            border-radius: 10px;
-            position: relative;
-        }
-        .timeline-line::before { content: 'Past Continuous (Long Action)'; position: absolute; top: -25px; left: 0; font-size: 0.8rem; color: #555; }
-
-        /* The Interruption (When) */
-        .timeline-break {
-            position: absolute;
-            left: 60%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3rem;
-            color: var(--color-when-dark);
-            background: white;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            border: 2px solid var(--color-when);
-        }
-        .timeline-break::after { content: 'Simple Past (Interruption)'; position: absolute; bottom: -35px; width: 150px; text-align: center; font-size: 0.8rem; color: #555; line-height: 1.2; }
-
-        /* --- ACTIVITY STYLES --- */
-        .act1-container { text-align: center; }
-        .act1-bar {
-            width: 100%;
-            height: 40px;
-            background: #dfe6e9;
-            border-radius: 20px;
-            position: relative;
-            margin: 40px 0;
-            cursor: pointer;
-            overflow: hidden;
-        }
-        .act1-progress { width: 0%; height: 100%; background-color: var(--color-while); transition: width 0.3s; }
-        .act1-icon { font-size: 2rem; position: absolute; top: -10px; left: 5%; cursor: grab; transition: left 0.2s; user-select: none; }
-
-        .gap-sentence { margin-bottom: 15px; font-size: 1.1rem; }
-        .gap-input {
-            border: none;
-            border-bottom: 2px solid #b2bec3;
-            font-size: 1.1rem;
-            width: 100px;
-            text-align: center;
-            background: transparent;
-            color: var(--color-accent);
-            font-weight: bold;
-        }
-        .gap-input:focus { outline: none; border-bottom-color: var(--color-accent); }
-
-        .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .match-item { padding: 10px; background: #f1f2f6; border: 2px solid transparent; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
-        .match-item.selected { border-color: var(--color-accent); background: #fff; }
-        .match-item.correct { background-color: #55efc4; border-color: #00b894; color: #006266; }
-
-        .word-bank { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; min-height: 50px; }
-        .word-bubble { background: white; border: 1px solid #b2bec3; padding: 8px 15px; border-radius: 20px; cursor: pointer; user-select: none; }
-        .sentence-area { min-height: 60px; background: #f5f6fa; border-radius: 8px; display: flex; align-items: center; padding: 10px; flex-wrap: wrap; gap: 10px; border: 2px dashed #dcdde1; }
-
-        .story-text { font-size: 1.1rem; line-height: 1.8; text-align: justify; }
-        .verb-click { font-weight: bold; color: var(--color-accent); cursor: pointer; padding: 2px 4px; border-radius: 4px; border: 1px solid transparent; }
-        .verb-click:hover { background: #dfe6e9; }
-        .verb-modal { position: absolute; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; display: none; z-index: 10; }
-        .verb-modal button { display: block; width: 100%; margin: 5px 0; font-size: 0.8rem; }
-
-        .quiz-box { text-align: center; }
-        .timer { font-size: 1.5rem; font-weight: bold; color: var(--color-when-dark); margin-bottom: 10px; }
-        .quiz-question { font-size: 1.2rem; margin-bottom: 20px; height: 60px; display: flex; align-items: center; justify-content: center;}
-        .quiz-opts { display: flex; gap: 20px; justify-content: center; }
-        .quiz-btn { width: 120px; padding: 15px; font-size: 1.2rem; }
-
-        .emoji-display { font-size: 3rem; text-align: center; margin-bottom: 20px; letter-spacing: 15px; }
-        .option-btn { display: block; width: 100%; text-align: left; margin: 10px 0; background: #f1f2f6; color: #2d3436; }
-        .option-btn:hover { background: #e0e0e0; }
-
-        /* Act 8 */
-        .ww-container { display: flex; gap: 20px; justify-content: center; margin-top: 20px; }
-        .ww-btn { flex: 1; padding: 30px; font-size: 1.5rem; text-transform: uppercase; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; }
-        
-        .error-sentence { font-size: 1.3rem; text-align: center; cursor: pointer; }
-        .error-word { padding: 5px; border-radius: 4px; transition: 0.2s; }
-        .error-word:hover { background: #ffeaa7; }
-
-        .story-select { border: none; border-bottom: 2px solid var(--color-accent); font-family: inherit; font-size: 1rem; color: #2d3436; background: transparent; font-weight: bold; cursor: pointer; }
-        .story-select:focus { outline: none; background: #eee; }
-
-        /* --- ACT 11: SORTING --- */
-        .sort-container { display: flex; gap: 10px; margin-top: 20px; }
-        .sort-bucket { flex: 1; min-height: 150px; border-radius: 8px; padding: 10px; text-align: center; }
-        .bucket-while { background: #e6ffec; border: 2px dashed var(--color-while-dark); }
-        .bucket-when { background: #fff0eb; border: 2px dashed var(--color-when-dark); }
-        .sort-item { background: white; padding: 8px; margin: 5px 0; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: grab; border: 1px solid #ccc; font-size: 0.9rem;}
-        
-        /* --- ACT 12: MEMORY (Fixed Rotation) --- */
-        .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .memory-card { 
-            height: 80px; 
-            background: var(--color-accent); 
-            border-radius: 8px; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            color: transparent; /* Text hidden initially */
-            text-align: center; 
-            font-size: 0.9rem; 
-            padding: 5px; 
-            transition: all 0.3s; 
-            user-select: none;
-        }
-        .memory-card.flipped { 
-            background: white; 
-            color: #2d3436; 
-            border: 2px solid var(--color-accent); 
-            /* Removed rotateY to fix mirrored text */
-        }
-        .memory-card.matched { visibility: hidden; }
-
-        /* --- ACT 15: TEACHER TOOLS --- */
-        .scoreboard { display: flex; justify-content: space-around; margin-top: 20px; }
-        .team-score { text-align: center; padding: 20px; background: #f8f9fa; border-radius: 10px; width: 45%; }
-        .score-val { font-size: 3rem; font-weight: bold; display: block; }
-        .random-display { font-size: 4rem; text-align: center; margin: 20px 0; font-weight: bold; color: var(--color-purple); }
-
-        /* Feedback */
-        .correct-text { color: #00b894; font-weight: bold; }
-        .wrong-text { color: #d63031; text-decoration: line-through; }
-        .feedback-msg { text-align: center; margin-top: 10px; font-weight: bold; min-height: 24px; }
-
-        @media (max-width: 600px) {
-            .formula-container { flex-direction: column; }
-            .match-grid { grid-template-columns: 1fr; }
-            h1 { font-size: 1.8rem; }
-            .ww-container { flex-direction: column; }
-            .sort-container { flex-direction: column; }
-            .memory-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- TOOLTIP ELEMENT -->
-    <div id="tooltip">Translation</div>
-
-    <div class="container">
-        <header>
-            <h1>⚡ Past Continuous vs Simple Past ⚡</h1>
-            <p style="text-align: center; color: #636e72;">
-                Learn how to tell stories with <span class="translatable" data-term="background" style="background:var(--color-while); padding:2px 5px; border-radius:4px;">Background Actions</span> and <span class="translatable" data-term="interruption" style="background:var(--color-when); padding:2px 5px; border-radius:4px;">Interruptions</span>.
-            </p>
-            <p style="text-align: center; margin-top: 5px; font-size: 0.9rem; color: #b2bec3;">
-                (<span class="translatable" data-term="click">Click</span> any underlined word for Turkish translation!)
-            </p>
-        </header>
-
-        <!-- PART 1: THE LESSON -->
-        <section id="learn">
-            <div class="card">
-                <h2>The Visual Formula</h2>
-                <div class="timeline-visual">
-                    <div class="timeline-line"></div>
-                    <div class="timeline-break">⚡</div>
-                </div>
-                <div class="formula-container">
-                    <div class="formula-box box-while">
-                        <h3>WHILE (The <span class="translatable" data-term="background">Background</span>)</h3>
-                        <p><span class="translatable" data-term="subject">Subject</span> + <strong>was / were</strong> + Verb<strong>-ing</strong></p>
-                        <p style="margin-top:5px; font-size:0.9rem;">"While I was <span class="translatable" data-term="sleep">sleeping</span>..."</p>
-                    </div>
-                    <div class="formula-box box-when">
-                        <h3>WHEN (The <span class="translatable" data-term="interruption">Interruption</span>)</h3>
-                        <p><span class="translatable" data-term="subject">Subject</span> + <strong>Verb (Past)</strong></p>
-                        <p style="margin-top:5px; font-size:0.9rem;">"...the phone <span class="translatable" data-term="ring">rang</span>."</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- PART 2: ACTIVITIES -->
-        <section id="practice">
-
-            <!-- Activity 1 -->
-            <div class="card act1-container">
-                <h3>1. The Timeline Visualizer</h3>
-                <p><span class="translatable" data-term="drag">Drag</span> the slider to the moment the interruption happens.</p>
-                <div class="act1-bar" id="sliderBar">
-                    <div class="act1-progress" id="sliderProgress"></div>
-                    <div class="act1-icon" id="sliderIcon">⚡</div>
-                </div>
-                <div id="act1-feedback" class="feedback-msg"></div>
-                <button class="btn btn-check" onclick="checkActivity1()"><span class="translatable" data-term="check">Check</span></button>
-            </div>
-
-            <!-- Activity 2 -->
-            <div class="card">
-                <h3>2. <span class="translatable" data-term="gap">Gap</span> <span class="translatable" data-term="fill">Fill</span></h3>
-                <div class="gap-sentence">1. <span class="translatable" data-term="while">While</span> Ahmet <input type="text" class="gap-input" data-ans="was studying"> (<span class="translatable" data-term="study">study</span>), his mother called.</div>
-                <div class="gap-sentence">2. We were having breakfast <span class="translatable" data-term="when">when</span> the postman <input type="text" class="gap-input" data-ans="arrived"> (<span class="translatable" data-term="arrive">arrive</span>).</div>
-                <div class="gap-sentence">3. They <input type="text" class="gap-input" data-ans="were walking"> (walk) when it started to <span class="translatable" data-term="rain">rain</span>.</div>
-                <div id="act2-feedback" class="feedback-msg"></div>
-                <button class="btn btn-check" onclick="checkActivity2()">Check Answers</button>
-            </div>
-
-            <!-- Activity 3 -->
-            <div class="card">
-                <h3>3. <span class="translatable" data-term="logic">Logic</span> Match</h3>
-                <div class="match-grid" id="matchGrid"></div>
-                <div id="act3-feedback" class="feedback-msg"></div>
-            </div>
-
-            <!-- Activity 4 -->
-            <div class="card">
-                <h3>4. <span class="translatable" data-term="scrambled">Scrambled</span> Sentence</h3>
-                <div class="sentence-area" id="sentenceArea"></div>
-                <div class="word-bank" id="wordBank"></div>
-                <div id="act4-feedback" class="feedback-msg"></div>
-                <button class="btn btn-check" onclick="checkActivity4()">Check Order</button>
-            </div>
-
-            <!-- Activity 5 -->
-            <div class="card" style="position: relative;">
-                <h3>5. The <span class="translatable" data-term="legend">Legend</span> of Maiden's Tower</h3>
-                <div class="story-text">
-                    According to a <span class="translatable" data-term="legend">legend</span>, an <span class="translatable" data-term="emperor">emperor</span> had a beautiful daughter. One night, the emperor <span class="verb-click" data-type="when" id="v1">dreamt</span> that a <span class="translatable" data-term="snake">snake</span> would <span class="translatable" data-term="bite">bite</span> his daughter. Years later, while she <span class="verb-click" data-type="while" id="v2">was living</span> in the <span class="translatable" data-term="tower">tower</span>, a snake <span class="verb-click" data-type="when" id="v3">came</span> out and <span class="verb-click" data-type="when" id="v4">bit</span> her.
-                </div>
-                <div id="verbModal" class="verb-modal">
-                    <button class="btn" style="background:var(--color-while);" onclick="ansVerb('while')">Background (While)</button>
-                    <button class="btn" style="background:var(--color-when);" onclick="ansVerb('when')">Interruption (When)</button>
-                </div>
-                <div id="act5-feedback" class="feedback-msg"></div>
-            </div>
-
-            <!-- Activity 6 -->
-            <div class="card quiz-box">
-                <h3>6. <span class="translatable" data-term="speed">Speed</span> Quiz</h3>
-                <div class="timer" id="timer">05</div>
-                <div class="quiz-question" id="quizQ">Press Start!</div>
-                <div class="quiz-opts">
-                    <button class="btn" style="background:var(--color-while)" onclick="ansQuiz('While')">While</button>
-                    <button class="btn" style="background:var(--color-when)" onclick="ansQuiz('When')">When</button>
-                </div>
-                <button class="btn btn-check" onclick="startQuiz()">Start Quiz</button>
-                <div id="quiz-feedback" class="feedback-msg"></div>
-            </div>
-
-            <!-- Activity 7 -->
-            <div class="card">
-                <h3>7. Emoji Decoder</h3>
-                <div class="emoji-display">🏃‍♂️ 🌧️</div>
-                <div id="emojiOpts">
-                    <button class="btn option-btn" onclick="checkAct7(0)">A) While he was running, it started to rain.</button>
-                    <button class="btn option-btn" onclick="checkAct7(1)">B) He was running when it was raining.</button>
-                    <button class="btn option-btn" onclick="checkAct7(2)">C) He ran while it started to rain.</button>
-                </div>
-                <div id="act7-feedback" class="feedback-msg"></div>
-            </div>
-
-            <!-- Activity 8 -->
-            <div class="card quiz-box">
-                <h3>8. Was or Were?</h3>
-                <p>Choose the correct verb.</p>
-                <div class="quiz-question" id="wwSentence">They _____ sleeping.</div>
-                <div class="ww-container">
-                    <button class="btn ww-btn" style="background: #a29bfe; color: white;" onclick="checkAct8('was')">WAS</button>
-                    <button class="btn ww-btn" style="background: #6c5ce7; color: white;" onclick="checkAct8('were')">WERE</button>
-                </div>
-                <div id="act8-feedback" class="feedback-msg"></div>
-            </div>
-
-            <!-- Activity 9 -->
-            <div class="card">
-                <h3>9. Find the Mistake</h3>
-                <div class="error-sentence" id="errorSentence">
-                    <span class="error-word" onclick="checkAct9(this, false)">I</span> 
-                    <span class="error-word" onclick="checkAct9(this, true)">were</span> 
-                    <span class="error-word" onclick="checkAct9(this, false)">cooking</span> 
-                    <span class="error-word" onclick="checkAct9(this, false)">when</span> 
-                    <span class="error-word" onclick="checkAct9(this, false)">you</span> 
-                    <span class="error-word" onclick="checkAct9(this, false)">came.</span>
-                </div>
-                <div id="act9-feedback" class="feedback-msg"></div>
-            </div>
-
-            <!-- Activity 10 -->
-            <div class="card">
-                <h3>10. Story Mode</h3>
-                <div class="story-text">
-                    One day, Nasreddin Hodja <select class="story-select" id="s1"><option value="wrong">was riding</option><option value="correct">rode</option></select> his donkey. While he <select class="story-select" id="s2"><option value="correct">was going</option><option value="wrong">went</option></select> there, his neighbor <select class="story-select" id="s3"><option value="correct">asked</option><option value="wrong">was asking</option></select> him a question. Hodja didn't hear him because he <select class="story-select" id="s4"><option value="wrong">thought</option><option value="correct">was thinking</option></select> about something else.
-                </div>
-                <div id="act10-feedback" class="feedback-msg"></div>
-                <button class="btn btn-check" onclick="checkActivity10()">Check Story</button>
-            </div>
-
-            <!-- Activity 11: Sorting Hat -->
-            <div class="card">
-                <h3>11. The <span class="translatable" data-term="sort">Sorting</span> Hat</h3>
-                <p>Drag the phrases into the correct bucket.</p>
-                <div class="word-bank" id="sortSource">
-                    <div class="sort-item" draggable="true" ondragstart="drag(event)" id="si1" data-type="while">I was sleeping</div>
-                    <div class="sort-item" draggable="true" ondragstart="drag(event)" id="si2" data-type="when">The phone rang</div>
-                    <div class="sort-item" draggable="true" ondragstart="drag(event)" id="si3" data-type="while">She was running</div>
-                    <div class="sort-item" draggable="true" ondragstart="drag(event)" id="si4" data-type="when">He fell down</div>
-                </div>
-                <div class="sort-container">
-                    <div class="sort-bucket bucket-while" ondrop="drop(event, 'while')" ondragover="allowDrop(event)">
-                        <strong>WHILE (Background)</strong>
-                    </div>
-                    <div class="sort-bucket bucket-when" ondrop="drop(event, 'when')" ondragover="allowDrop(event)">
-                        <strong>WHEN (Event)</strong>
-                    </div>
-                </div>
-                <div id="act11-feedback" class="feedback-msg"></div>
-            </div>
-
-            <!-- Activity 12: Memory Game -->
-            <div class="card">
-                <h3>12. <span class="translatable" data-term="memory">Memory</span> Game</h3>
-                <p>Find the pairs! (Match Sentence Part 1 + Part 2)</p>
-                <div class="memory-grid" id="memoryGrid"></div>
-                <div id="act12-feedback" class="feedback-msg"></div>
-            </div>
-
-            <!-- Activity 13: Grammar Police -->
-            <div class="card">
-                <h3>13. <span class="translatable" data-term="police">Grammar Police</span> 👮‍♂️</h3>
-                <p>Is this sentence <span class="translatable" data-term="correct">Correct</span> or <span class="translatable" data-term="incorrect">Incorrect</span>?</p>
-                <div class="quiz-question" id="gpSentence">While I played football, I broke my leg.</div>
-                <div class="quiz-opts">
-                    <button class="btn" style="background:#00b894; color:white;" onclick="checkAct13(true)">Correct</button>
-                    <button class="btn" style="background:#d63031; color:white;" onclick="checkAct13(false)">Incorrect</button>
-                </div>
-                <div id="act13-feedback" class="feedback-msg"></div>
-            </div>
-
-            <!-- Activity 14: Sentence Endings -->
-            <div class="card">
-                <h3>14. Finish the Story</h3>
-                <p>Choose the logical ending.</p>
-                <div style="font-size:1.2rem; margin-bottom:10px;">"While we were watching the horror movie..."</div>
-                <div class="emoji-display" style="font-size:1rem; letter-spacing: normal;">
-                    <button class="btn option-btn" onclick="checkAct14(0)">...we were eating popcorn.</button>
-                    <button class="btn option-btn" onclick="checkAct14(1)">...the electricity went out.</button>
-                    <button class="btn option-btn" onclick="checkAct14(2)">...we go to sleep.</button>
-                </div>
-                <div id="act14-feedback" class="feedback-msg"></div>
-            </div>
-
-            <!-- Activity 15: Teacher Tools -->
-            <div class="card" style="border: 2px solid var(--color-purple);">
-                <h3>15. Teacher's Toolbox (For Class of 40)</h3>
-                <p>Tools to use on the smartboard with the whole class.</p>
-                
-                <div style="text-align:center; border-bottom: 1px solid #eee; padding-bottom: 20px;">
-                    <h4>Random Student Selector (1-40)</h4>
-                    <div class="random-display" id="rndDisplay">?</div>
-                    <button class="btn btn-teacher" onclick="pickStudent()">Pick Student</button>
-                </div>
-
-                <div class="scoreboard">
-                    <div class="team-score">
-                        <h4>Team A</h4>
-                        <span class="score-val" id="scoreA">0</span>
-                        <button class="btn btn-teacher" onclick="modScore('A', 1)">+1</button>
-                        <button class="btn btn-teacher" onclick="modScore('A', -1)">-1</button>
-                    </div>
-                    <div class="team-score">
-                        <h4>Team B</h4>
-                        <span class="score-val" id="scoreB">0</span>
-                        <button class="btn btn-teacher" onclick="modScore('B', 1)">+1</button>
-                        <button class="btn btn-teacher" onclick="modScore('B', -1)">-1</button>
-                    </div>
-                </div>
-            </div>
-
-        </section>
-
-        <footer style="text-align: center; color: #b2bec3; font-size: 0.8rem; margin-top: 50px;">
-            Created for ESL Students in Türkiye • 2025
-        </footer>
-    </div>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Linguist OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script>
-        /* --- DICTIONARY --- */
-        const dictionary = {
-            "legend": "efsane", "emperor": "imparator", "snake": "yılan", "bite": "ısırmak",
-            "tower": "kule", "sleep": "uyumak", "ring": "çalmak", "watch": "izlemek",
-            "electricity": "elektrik", "while": "iken / esnasında", "when": "-dığı zaman",
-            "study": "ders çalışmak", "arrive": "varmak", "rain": "yağmur", "phone": "telefon",
-            "background": "arka plan", "action": "eylem", "interruption": "kesinti", "subject": "özne",
-            "gap": "boşluk", "fill": "doldurmak", "challenge": "meydan okuma", "logic": "mantık",
-            "match": "eşleştirmek", "scrambled": "karışık", "sentence": "cümle", "speed": "hız",
-            "quiz": "sınav", "timer": "süre", "correct": "doğru", "wrong": "yanlış",
-            "try": "denemek", "again": "tekrar", "click": "tıklamak", "drag": "sürüklemek",
-            "check": "kontrol et", "answer": "cevap", "position": "konum", "mother": "anne",
-            "call": "aramak", "postman": "postacı", "school": "okul", "start": "başlamak",
-            "cook": "pişirmek", "dance": "dans etmek", "music": "müzik", "fall": "düşmek",
-            "see": "görmek", "stop": "durmak", "donkey": "eşek", "market": "pazar",
-            "neighbor": "komşu", "ask": "sormak", "hear": "duymak", "think": "düşünmek",
-            "sort": "sıralamak / ayırmak", "bucket": "kova", "memory": "hafıza",
-            "police": "polis", "incorrect": "hatalı", "team": "takım", "score": "puan",
-            "random": "rastgele", "winner": "kazanan", "card": "kart", "flip": "çevirmek",
-            "dolphin": "yunus", "bell": "zil"
-        };
-
-        const tooltip = document.getElementById('tooltip');
-        document.body.addEventListener('click', (e) => {
-            if (e.target.classList.contains('translatable')) {
-                const term = e.target.getAttribute('data-term');
-                const trans = dictionary[term] || "No translation";
-                const rect = e.target.getBoundingClientRect();
-                tooltip.innerText = trans;
-                tooltip.style.display = 'block';
-                tooltip.style.top = (window.scrollY + rect.top - 30) + 'px';
-                tooltip.style.left = (window.scrollX + rect.left) + 'px';
-                setTimeout(() => tooltip.style.display = 'none', 2000);
-            } else {
-                tooltip.style.display = 'none';
-            }
-        });
-
-        /* --- Activity 1: Slider --- */
-        const sliderBar = document.getElementById('sliderBar');
-        const sliderIcon = document.getElementById('sliderIcon');
-        const sliderProgress = document.getElementById('sliderProgress');
-        let sliderVal = 5;
-        sliderBar.addEventListener('click', (e) => {
-            const rect = sliderBar.getBoundingClientRect();
-            let percent = ((e.clientX - rect.left) / rect.width) * 100;
-            if(percent < 5) percent = 5; if(percent > 95) percent = 95;
-            sliderIcon.style.left = percent + '%';
-            sliderProgress.style.width = percent + '%';
-            sliderVal = percent;
-        });
-        function checkActivity1() {
-            const fb = document.getElementById('act1-feedback');
-            fb.innerHTML = (sliderVal > 60 && sliderVal < 85) ? "<span class='correct-text'>Correct!</span>" : "<span class='wrong-text'>Try again!</span>";
-        }
-
-        /* --- Activity 2: Gap Fill --- */
-        function checkActivity2() {
-            let correct = 0;
-            document.querySelectorAll('.gap-input').forEach(inp => {
-                if(inp.value.toLowerCase().trim() === inp.getAttribute('data-ans')) {
-                    inp.style.borderColor = "#00b894"; correct++;
-                } else inp.style.borderColor = "#d63031";
-            });
-            document.getElementById('act2-feedback').innerHTML = (correct===3) ? "<span class='correct-text'>Perfect!</span>" : "Check errors.";
-        }
-
-        /* --- Activity 3: Logic Match --- */
-        const pairs = [{id:1,t:"While I was cooking...",m:1,s:'l'}, {id:2,t:"When he entered...",m:2,s:'l'}, {id:3,t:"...I burned my hand.",m:1,s:'r'}, {id:4,t:"...we all smiled.",m:2,s:'r'}];
-        let selItem = null;
-        function initMatch() {
-            const grid = document.getElementById('matchGrid');
-            grid.innerHTML = "";
-            const sortedPairs = [...pairs].sort(()=>Math.random()-0.5);
-            sortedPairs.forEach(p => {
-                const d = document.createElement('div');
-                d.className = 'match-item'; d.innerText = p.t; d.dataset.m = p.m;
-                d.onclick = () => {
-                    if(d.classList.contains('correct')) return;
-                    if(!selItem) { selItem = d; d.classList.add('selected'); }
-                    else if(selItem === d) { d.classList.remove('selected'); selItem = null; }
-                    else if(selItem.dataset.m === d.dataset.m) {
-                        d.classList.add('correct'); selItem.classList.add('correct'); selItem.classList.remove('selected'); selItem=null;
-                    } else {
-                        selItem.classList.remove('selected'); d.classList.add('wrong-text');
-                        setTimeout(()=>d.classList.remove('wrong-text'),500); selItem=null;
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        ios: { blue: '#007AFF', gray: '#8E8E93', bg: '#F2F2F7', darkbg: '#000000', card: '#ffffff', darkcard: '#1C1C1E' }
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     }
-                };
-                grid.appendChild(d);
-            });
-        }
-        initMatch();
-
-        /* --- Activity 4: Scrambled --- */
-        const correctSent = ["While","she","was","running","she","lost","her","keys"];
-        const wordBank = document.getElementById('wordBank');
-        const sentArea = document.getElementById('sentenceArea');
-        wordBank.innerHTML = "";
-        sentArea.innerHTML = "";
-        
-        [...correctSent].sort(()=>Math.random()-0.5).forEach(w => {
-            const b = document.createElement('div'); b.className='word-bubble'; b.innerText=w;
-            b.onclick = () => (b.parentElement===wordBank ? sentArea : wordBank).appendChild(b);
-            wordBank.appendChild(b);
-        });
-        function checkActivity4() {
-            const curr = Array.from(sentArea.children).map(c=>c.innerText);
-            document.getElementById('act4-feedback').innerHTML = (JSON.stringify(curr)===JSON.stringify(correctSent)) ? "<span class='correct-text'>Correct!</span>" : "<span class='wrong-text'>Wrong order!</span>";
-        }
-
-        /* --- Activity 5: Story --- */
-        let curVerb=null; const vModal=document.getElementById('verbModal');
-        document.querySelectorAll('.verb-click').forEach(s => s.onclick = (e) => {
-            curVerb=e.target; vModal.style.display='block';
-            vModal.style.top=(window.scrollY+e.target.getBoundingClientRect().bottom+5)+'px';
-            vModal.style.left=(window.scrollX+e.target.getBoundingClientRect().left)+'px';
-        });
-        function ansVerb(t) {
-            if(curVerb && t===curVerb.dataset.type) { curVerb.style.backgroundColor=(t==='while'?'var(--color-while)':'var(--color-when)'); curVerb.style.color='#333'; }
-            vModal.style.display='none';
-        }
-        
-        /* --- Activity 6: Speed Quiz --- */
-        const q6 = [{t:"__ I was sleeping...",a:"While"},{t:"I was eating __ he came.",a:"When"}];
-        let q6i=0;
-        function startQuiz(){ q6i=0; nextQ6(); }
-        function nextQ6(){ 
-            if(q6i>=q6.length) { document.getElementById('quizQ').innerText="Done!"; return; }
-            document.getElementById('quizQ').innerText=q6[q6i].t;
-        }
-        function ansQuiz(a){
-            if(a===q6[q6i].a) document.getElementById('quiz-feedback').innerHTML="<span class='correct-text'>Correct!</span>";
-            else document.getElementById('quiz-feedback').innerHTML="<span class='wrong-text'>Wrong!</span>";
-            q6i++; setTimeout(nextQ6,1000);
-        }
-
-        /* --- Activity 7: Emoji --- */
-        function checkAct7(i) { document.getElementById('act7-feedback').innerHTML = (i===0) ? "<span class='correct-text'>Correct!</span>" : "<span class='wrong-text'>No.</span>"; }
-        
-        /* --- Activity 8: Was/Were (FIXED) --- */
-        const q8Questions = [
-            { text: "They _____ sleeping.", ans: "were" },
-            { text: "I _____ working hard.", ans: "was" },
-            { text: "The cat _____ running.", ans: "was" },
-            { text: "We _____ eating pizza.", ans: "were" },
-            { text: "She _____ reading.", ans: "was" }
-        ];
-        let q8Index = 0;
-
-        function checkAct8(userAns) {
-            const currentQ = q8Questions[q8Index];
-            const feedback = document.getElementById('act8-feedback');
-            const questionText = document.getElementById('wwSentence');
-
-            if (userAns === currentQ.ans) {
-                feedback.innerHTML = "<span class='correct-text'>Correct!</span>";
-                // Move to next question after delay
-                setTimeout(() => {
-                    q8Index = (q8Index + 1) % q8Questions.length;
-                    questionText.innerText = q8Questions[q8Index].text;
-                    feedback.innerText = "";
-                }, 1000);
-            } else {
-                feedback.innerHTML = "<span class='wrong-text'>Wrong! Try again.</span>";
-            }
-        }
-
-        /* --- Activity 9: Mistake --- */
-        function checkAct9(el,isErr) {
-            el.style.backgroundColor = isErr ? '#00b894' : '#fab1a0';
-            document.getElementById('act9-feedback').innerHTML = isErr ? "<span class='correct-text'>Found it!</span>" : "Keep looking.";
-        }
-
-        /* --- Activity 10: Story Fill --- */
-        function checkActivity10() {
-            const s1=document.getElementById('s1').value; const s2=document.getElementById('s2').value;
-            document.getElementById('act10-feedback').innerHTML = (s1==='correct'&&s2==='correct') ? "<span class='correct-text'>Good job!</span>" : "Try again.";
-        }
-
-        /* --- Act 11: Sorting Hat --- */
-        function allowDrop(ev) { ev.preventDefault(); }
-        function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
-        function drop(ev, cat) {
-            ev.preventDefault();
-            const data = ev.dataTransfer.getData("text");
-            const el = document.getElementById(data);
-            if (el.dataset.type === cat) {
-                ev.target.appendChild(el);
-                el.style.border = "none";
-                el.style.background = "transparent";
-                el.style.fontWeight = "bold";
-                document.getElementById('act11-feedback').innerText = "";
-            } else {
-                document.getElementById('act11-feedback').innerText = "Wrong bucket!";
-            }
-        }
-
-        /* --- Act 12: Memory Game (FIXED ROTATION) --- */
-        const memCards = [
-            {id:1, t:"While I was swimming", pair:1}, {id:2, t:"I saw a dolphin", pair:1},
-            {id:3, t:"When the bell rang", pair:2}, {id:4, t:"we left the class", pair:2},
-            {id:5, t:"While mom was cooking", pair:3}, {id:6, t:"she burned the food", pair:3},
-            {id:7, t:"He was running", pair:4}, {id:8, t:"when he fell", pair:4}
-        ];
-        let flipped = [];
-        const memGrid = document.getElementById('memoryGrid');
-        
-        // Init Game
-        [...memCards].sort(()=>Math.random()-0.5).forEach(c => {
-            const card = document.createElement('div');
-            card.className = 'memory-card';
-            card.innerHTML = "<span>?</span>"; // Initial state
-            card.onclick = () => flipCard(card, c);
-            memGrid.appendChild(card);
-        });
-
-        function flipCard(el, data) {
-            // Prevent clicking if already 2 selected or already matched/flipped
-            if(flipped.length < 2 && !el.classList.contains('flipped') && !el.classList.contains('matched')) {
-                el.classList.add('flipped');
-                el.innerText = data.t; // Show text on flip
-                flipped.push({el, data});
-                
-                if(flipped.length === 2) {
-                    setTimeout(checkMatch, 1000);
                 }
             }
         }
+    </script>
 
-        function checkMatch() {
-            const [c1, c2] = flipped;
-            if(c1.data.pair === c2.data.pair) {
-                c1.el.classList.add('matched');
-                c2.el.classList.add('matched');
-                document.getElementById('act12-feedback').innerHTML = "<span class='correct-text'>Match found!</span>";
-            } else {
-                // Reset styling if wrong
-                c1.el.classList.remove('flipped'); c1.el.innerHTML = "<span>?</span>";
-                c2.el.classList.remove('flipped'); c2.el.innerHTML = "<span>?</span>";
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body, div, button { transition: all 0.3s ease; }
+        
+        /* Mic Active Animation */
+        @keyframes glowing {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .mic-active {
+            animation: glowing 1.5s infinite;
+            background-color: #ef4444 !important; /* Red */
+            border-color: #ef4444 !important;
+        }
+
+        /* AI Speaking Animation */
+        @keyframes wave {
+            0%, 100% { height: 10px; }
+            50% { height: 40px; }
+        }
+        .ai-wave-bar { animation: wave 0.5s ease-in-out infinite; }
+        .ai-wave-paused { animation: none; height: 5px; }
+    </style>
+</head>
+<body class="bg-gray-900 h-screen w-screen flex items-center justify-center font-sans overflow-hidden select-none">
+
+    <!-- PHONE DEVICE FRAME -->
+    <div class="relative w-full h-full sm:w-[375px] sm:h-[812px] bg-ios-bg dark:bg-black sm:rounded-[45px] shadow-2xl overflow-hidden flex flex-col border-[6px] border-gray-800">
+        
+        <!-- TOP BAR -->
+        <div class="h-12 w-full flex justify-between items-center px-6 text-xs font-bold z-50 text-black dark:text-white absolute top-0 bg-white/50 dark:bg-black/50 backdrop-blur-md">
+            <span id="clock">12:00</span>
+            <div class="flex gap-2 items-center">
+                <i class="fa-solid fa-signal"></i>
+                <i class="fa-solid fa-wifi"></i>
+                <i class="fa-solid fa-battery-full text-lg"></i>
+            </div>
+        </div>
+
+        <!-- ======================= VIEWS ======================= -->
+
+        <!-- 1. CONTACTS (HOME) -->
+        <div id="view-contacts" class="view-section flex-1 pt-16 pb-20 overflow-y-auto no-scrollbar">
+            <div class="px-5 mb-4">
+                <h1 class="text-3xl font-bold text-black dark:text-white mb-2">Contacts</h1>
+                <p class="text-gray-500 text-sm">Select a partner to call</p>
+            </div>
+            <div class="bg-white dark:bg-ios-darkcard mx-4 rounded-xl overflow-hidden shadow-sm divide-y divide-gray-100 dark:divide-gray-800" id="contact-list">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- 2. MESSAGES (HISTORY) -->
+        <div id="view-messages" class="view-section hidden flex-1 pt-16 pb-20 overflow-y-auto no-scrollbar">
+            <div class="px-5 mb-4 flex justify-between items-end">
+                <h1 class="text-3xl font-bold text-black dark:text-white">Messages</h1>
+                <button onclick="clearHistory()" class="text-ios-blue text-sm font-semibold">Clear</button>
+            </div>
+            <div id="messages-list" class="space-y-3 px-4 pb-4">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- 3. SETTINGS -->
+        <div id="view-settings" class="view-section hidden flex-1 pt-16 pb-20 overflow-y-auto no-scrollbar">
+            <div class="px-5 mb-6">
+                <h1 class="text-3xl font-bold text-black dark:text-white">Settings</h1>
+            </div>
+
+            <div class="mx-4 space-y-6">
+                <!-- API Key -->
+                <div class="bg-white dark:bg-ios-darkcard rounded-xl p-4 shadow-sm">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 rounded bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white"><i class="fa-solid fa-brain"></i></div>
+                        <span class="text-black dark:text-white font-medium">Gemini API Key</span>
+                    </div>
+                    <input type="password" id="api-key-input" placeholder="Paste Key Here..." class="w-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-500" onchange="saveApiKey(this.value)">
+                </div>
+
+                <!-- Theme -->
+                <div class="bg-white dark:bg-ios-darkcard rounded-xl p-4 shadow-sm flex justify-between items-center">
+                    <span class="text-black dark:text-white font-medium">Dark Mode</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-dark" class="sr-only peer" onchange="toggleTheme()">
+                        <div class="w-11 h-6 bg-gray-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                    </label>
+                </div>
+
+                <!-- Language Input (NEW) -->
+                <div class="bg-white dark:bg-ios-darkcard rounded-xl p-4 shadow-sm">
+                    <h3 class="text-gray-500 text-xs font-bold uppercase mb-2">Speech Language Code</h3>
+                    <p class="text-[10px] text-gray-400 mb-2">Examples: en-US, tr-TR, fr-FR, es-ES, de-DE</p>
+                    <input type="text" id="lang-input" placeholder="en-US" class="w-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white rounded-lg p-3 text-lg font-mono outline-none border border-transparent focus:border-ios-blue" onchange="saveSettings()">
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. ACTIVE CALL OVERLAY -->
+        <div id="view-call" class="hidden absolute inset-0 bg-gray-900 z-[100] flex flex-col backdrop-blur-3xl bg-opacity-95">
+            <div class="flex flex-col items-center mt-16 flex-1 px-6">
+                
+                <!-- Avatar -->
+                <div id="call-avatar" class="w-32 h-32 rounded-full flex items-center justify-center text-4xl text-white shadow-2xl mb-4 border-4 border-gray-800 transition-transform duration-500">
+                    <span>AI</span>
+                </div>
+                
+                <h2 id="call-name" class="text-2xl text-white font-semibold">Unknown</h2>
+                <p id="call-status-text" class="text-blue-300 text-sm font-bold uppercase tracking-widest mt-2">Connecting...</p>
+
+                <!-- Visualization -->
+                <div class="h-16 flex items-center justify-center gap-1 mt-6 w-full">
+                    <div class="w-2 bg-blue-500 rounded-full ai-wave-bar ai-wave-paused" style="animation-delay: 0.0s"></div>
+                    <div class="w-2 bg-purple-500 rounded-full ai-wave-bar ai-wave-paused" style="animation-delay: 0.1s"></div>
+                    <div class="w-2 bg-blue-400 rounded-full ai-wave-bar ai-wave-paused" style="animation-delay: 0.2s"></div>
+                    <div class="w-2 bg-purple-400 rounded-full ai-wave-bar ai-wave-paused" style="animation-delay: 0.3s"></div>
+                    <div class="w-2 bg-blue-500 rounded-full ai-wave-bar ai-wave-paused" style="animation-delay: 0.4s"></div>
+                </div>
+
+                <!-- TAP TO SPEAK BUTTON (Manual Trigger) -->
+                <button id="manual-mic-btn" onclick="activateMicManual()" class="mt-8 px-6 py-3 bg-white/10 rounded-full text-white text-sm font-medium border border-white/20 hover:bg-white/20 active:scale-95 transition">
+                    <i class="fa-solid fa-microphone mr-2"></i> Tap if Mic Stops
+                </button>
+            </div>
+
+            <!-- Call Actions -->
+            <div class="pb-12 px-12 w-full flex justify-around items-center">
+                 <!-- Indicator only, handled by logic -->
+                <div id="mic-indicator" class="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-white/50 transition-all duration-300 border-2 border-transparent">
+                    <i class="fa-solid fa-microphone"></i>
+                </div>
+
+                <button onclick="endCall()" class="w-20 h-20 rounded-full bg-red-500 flex items-center justify-center text-white shadow-lg shadow-red-500/40 hover:scale-105 transition-all active:scale-95">
+                    <i class="fa-solid fa-phone-slash text-3xl"></i>
+                </button>
+                
+                <div class="w-14 h-14 rounded-full bg-transparent flex items-center justify-center text-white/30">
+                    <i class="fa-solid fa-volume-high"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAV -->
+        <div class="absolute bottom-0 w-full h-[80px] bg-white/90 dark:bg-ios-darkcard/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 flex justify-around items-start pt-3 z-40">
+            <button onclick="switchView('view-contacts')" class="nav-btn group flex flex-col items-center gap-1 w-16 text-ios-blue">
+                <i class="fa-solid fa-user text-xl"></i><span class="text-[10px]">Contacts</span>
+            </button>
+            <button onclick="switchView('view-messages')" class="nav-btn group flex flex-col items-center gap-1 w-16 text-gray-400">
+                <i class="fa-solid fa-comment text-xl"></i><span class="text-[10px]">Messages</span>
+            </button>
+            <button onclick="switchView('view-settings')" class="nav-btn group flex flex-col items-center gap-1 w-16 text-gray-400">
+                <i class="fa-solid fa-gear text-xl"></i><span class="text-[10px]">Settings</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- LOGIC -->
+    <script>
+        // --- APP CONFIG ---
+        const APP = {
+            contacts: [
+                { id: 1, name: "Sarah", role: "Beginner Tutor", prompt: "You are Sarah, a helpful English tutor. Correct my mistakes.", color: "from-green-400 to-teal-500" },
+                { id: 2, name: "Mike", role: "Casual Friend", prompt: "You are Mike. Talk casually.", color: "from-blue-400 to-indigo-600" },
+                { id: 3, name: "Dr. Sterling", role: "Professor", prompt: "You are a strict professor. Use big words.", color: "from-purple-500 to-pink-600" }
+            ],
+            state: {
+                isCallActive: false,
+                isAiSpeaking: false,
+                isMicListening: false,
+                currentContact: null,
+                transcript: [],
+                recognition: null,
+                synth: window.speechSynthesis
+            },
+            settings: {
+                apiKey: "",
+                darkMode: true,
+                lang: "en-US" // Default
             }
-            flipped = [];
+        };
+
+        // --- INIT ---
+        window.onload = () => {
+            // Load saved
+            const saved = localStorage.getItem('ai_phone_v3');
+            if(saved) {
+                const parsed = JSON.parse(saved);
+                APP.settings = { ...APP.settings, ...parsed.settings };
+                // History logic could go here
+            }
+
+            // Apply Settings
+            document.getElementById('api-key-input').value = APP.settings.apiKey;
+            document.getElementById('toggle-dark').checked = APP.settings.darkMode;
+            document.getElementById('lang-input').value = APP.settings.lang;
+            applyTheme();
+            renderContacts();
+            updateClock();
+            setInterval(updateClock, 10000);
+        };
+
+        function saveData() {
+            localStorage.setItem('ai_phone_v3', JSON.stringify({ settings: APP.settings }));
         }
 
-        /* --- Act 13: Grammar Police --- */
-        function checkAct13(isCorrect) {
-            const feedback = document.getElementById('act13-feedback');
-            if(!isCorrect) {
-                feedback.innerHTML = "<span class='correct-text'>Correct! It should be 'While I WAS PLAYING'.</span>";
-            } else {
-                feedback.innerHTML = "<span class='wrong-text'>Wrong! 'While' needs continuous tense here.</span>";
+        // --- UI FUNCS ---
+        function switchView(id) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            // Reset nav colors
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('text-ios-blue');
+                b.classList.add('text-gray-400');
+            });
+            // Set active
+            const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.onclick.toString().includes(id));
+            if(btn) { btn.classList.remove('text-gray-400'); btn.classList.add('text-ios-blue'); }
+        }
+
+        function toggleTheme() {
+            APP.settings.darkMode = !APP.settings.darkMode;
+            saveData();
+            applyTheme();
+        }
+
+        function applyTheme() {
+            document.documentElement.classList.toggle('dark', APP.settings.darkMode);
+        }
+
+        function saveSettings() {
+            APP.settings.lang = document.getElementById('lang-input').value.trim() || 'en-US';
+            APP.settings.apiKey = document.getElementById('api-key-input').value.trim();
+            saveData();
+        }
+
+        function saveApiKey(val) { saveSettings(); }
+
+        function renderContacts() {
+            const list = document.getElementById('contact-list');
+            list.innerHTML = APP.contacts.map(c => `
+                <div onclick="startCall(${c.id})" class="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br ${c.color} flex items-center justify-center text-white font-bold text-lg shadow-sm">${c.name[0]}</div>
+                    <div class="flex-1">
+                        <h3 class="text-black dark:text-white font-semibold">${c.name}</h3>
+                        <p class="text-gray-500 text-xs">${c.role}</p>
+                    </div>
+                    <i class="fa-solid fa-phone text-ios-blue"></i>
+                </div>
+            `).join('');
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        // --- CORE CALL LOGIC ---
+
+        function startCall(id) {
+            const contact = APP.contacts.find(c => c.id === id);
+            APP.state.currentContact = contact;
+            APP.state.isCallActive = true;
+            APP.state.transcript = [];
+
+            // UI
+            document.getElementById('view-call').classList.remove('hidden');
+            document.getElementById('call-name').innerText = contact.name;
+            document.getElementById('call-avatar').className = `w-32 h-32 rounded-full flex items-center justify-center text-4xl text-white shadow-2xl mb-4 border-4 border-gray-800 transition-transform duration-500 bg-gradient-to-br ${contact.color}`;
+            
+            // Start Speech
+            initSpeechRec();
+
+            // Fake Connection Time then Greeting
+            updateStatus("Connecting...");
+            setTimeout(() => {
+                updateStatus("Connected");
+                const greeting = `Hello! This is ${contact.name}.`;
+                speakAI(greeting);
+            }, 1500);
+        }
+
+        function endCall() {
+            APP.state.isCallActive = false;
+            APP.state.synth.cancel();
+            if(APP.state.recognition) APP.state.recognition.stop();
+            document.getElementById('view-call').classList.add('hidden');
+            
+            // Save to messages (simple version)
+            const list = document.getElementById('messages-list');
+            if(APP.state.transcript.length > 0) {
+                const date = new Date().toLocaleTimeString();
+                const historyHtml = `
+                    <div class="bg-white dark:bg-ios-darkcard p-3 rounded-lg border border-gray-100 dark:border-gray-800">
+                        <div class="flex justify-between text-xs font-bold mb-2 text-black dark:text-white">
+                            <span>${APP.state.currentContact.name}</span><span>${date}</span>
+                        </div>
+                        <p class="text-xs text-gray-500">${APP.state.transcript.length} messages</p>
+                    </div>`;
+                list.insertAdjacentHTML('afterbegin', historyHtml);
             }
         }
 
-        /* --- Act 14: Story Ending --- */
-        function checkAct14(opt) {
-            const fb = document.getElementById('act14-feedback');
-            if(opt === 1) fb.innerHTML = "<span class='correct-text'>Yes! A classic interruption.</span>";
-            else if(opt === 0) fb.innerHTML = "<span class='wrong-text'>This is possible, but usually we look for an interruption (When).</span>";
-            else fb.innerHTML = "<span class='wrong-text'>Grammar error!</span>";
+        function updateStatus(text) {
+            document.getElementById('call-status-text').innerText = text;
         }
 
-        /* --- Act 15: Teacher Tools --- */
-        let scoreA = 0;
-        let scoreB = 0;
-        function pickStudent() {
-            const el = document.getElementById('rndDisplay');
-            let i = 0;
-            const interval = setInterval(() => {
-                el.innerText = Math.floor(Math.random() * 40) + 1;
-                i++;
-                if(i > 10) clearInterval(interval);
-            }, 50);
+        // --- SPEECH RECOGNITION (FIXED) ---
+
+        function initSpeechRec() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Speech API not supported. Please use Chrome.");
+                return;
+            }
+            
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            APP.state.recognition = new SpeechRec();
+            APP.state.recognition.lang = APP.settings.lang;
+            APP.state.recognition.continuous = false; // Turn-based for reliability
+            APP.state.recognition.interimResults = false;
+
+            APP.state.recognition.onstart = () => {
+                APP.state.isMicListening = true;
+                updateStatus("Listening... (Speak Now)");
+                document.getElementById('mic-indicator').classList.add('mic-active');
+            };
+
+            APP.state.recognition.onend = () => {
+                APP.state.isMicListening = false;
+                document.getElementById('mic-indicator').classList.remove('mic-active');
+                
+                // CRITICAL LOOP: If call active & AI not speaking, restart mic
+                if (APP.state.isCallActive && !APP.state.isAiSpeaking) {
+                    // Small delay to prevent CPU thrashing if mic error loop
+                    setTimeout(() => {
+                        if(APP.state.isCallActive && !APP.state.isAiSpeaking && !APP.state.isMicListening) {
+                            try { APP.state.recognition.start(); } catch(e){}
+                        }
+                    }, 100);
+                }
+            };
+
+            APP.state.recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                if(text.trim()) {
+                    APP.state.transcript.push({role: 'user', text});
+                    handleUserSpeech(text);
+                }
+            };
+
+            APP.state.recognition.onerror = (event) => {
+                console.log("Mic Error:", event.error);
+                if(event.error === 'not-allowed') {
+                    alert("Microphone access blocked! Please allow permissions in browser settings.");
+                    endCall();
+                }
+            };
         }
-        function modScore(team, val) {
-            if(team === 'A') { scoreA += val; document.getElementById('scoreA').innerText = scoreA; }
-            else { scoreB += val; document.getElementById('scoreB').innerText = scoreB; }
+
+        function activateMicManual() {
+            // Force start if stuck
+            if(APP.state.recognition && !APP.state.isMicListening) {
+                try { APP.state.recognition.start(); } catch(e){}
+            }
+        }
+
+        async function handleUserSpeech(text) {
+            updateStatus("Thinking...");
+            
+            // Get AI Response
+            let responseText = "";
+            if(APP.settings.apiKey) {
+                responseText = await fetchGemini(text);
+            } else {
+                await new Promise(r => setTimeout(r, 800)); // Fake delay
+                responseText = "I heard you say: " + text + ". (Add API Key in Settings for real AI)";
+            }
+            
+            speakAI(responseText);
+        }
+
+        // --- TTS ---
+
+        function speakAI(text) {
+            APP.state.isAiSpeaking = true;
+            APP.state.transcript.push({role: 'ai', text});
+            updateStatus("Speaking...");
+            
+            // Visuals
+            document.querySelectorAll('.ai-wave-bar').forEach(b => b.classList.remove('ai-wave-paused'));
+            
+            // Stop mic before speaking
+            if(APP.state.isMicListening) APP.state.recognition.stop();
+            APP.state.synth.cancel();
+
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = APP.settings.lang;
+            u.rate = 1.0;
+            
+            u.onend = () => {
+                APP.state.isAiSpeaking = false;
+                document.querySelectorAll('.ai-wave-bar').forEach(b => b.classList.add('ai-wave-paused'));
+                
+                // Resume Mic
+                if(APP.state.isCallActive) {
+                    try { APP.state.recognition.start(); } catch(e){}
+                }
+            };
+
+            APP.state.synth.speak(u);
+        }
+
+        // --- GEMINI API ---
+        async function fetchGemini(userText) {
+            const hist = APP.state.transcript.map(t => `${t.role}: ${t.text}`).join('\n');
+            const prompt = `System: ${APP.state.currentContact.prompt}. Language: ${APP.settings.lang}. Keep response short (1-2 sentences).
+            Conversation:
+            ${hist}
+            User: ${userText}
+            AI:`;
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${APP.settings.apiKey}`;
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                const data = await res.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch(e) {
+                return "Error connecting to AI. Please check API Key.";
+            }
+        }
+
+        function clearHistory() {
+            document.getElementById('messages-list').innerHTML = '';
         }
 
     </script>
