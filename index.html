@@ -208,8 +208,9 @@
         .option-btn { display: block; width: 100%; text-align: left; margin: 10px 0; background: #f1f2f6; color: #2d3436; }
         .option-btn:hover { background: #e0e0e0; }
 
+        /* Act 8 */
         .ww-container { display: flex; gap: 20px; justify-content: center; margin-top: 20px; }
-        .ww-btn { flex: 1; padding: 30px; font-size: 1.5rem; text-transform: uppercase; }
+        .ww-btn { flex: 1; padding: 30px; font-size: 1.5rem; text-transform: uppercase; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; }
         
         .error-sentence { font-size: 1.3rem; text-align: center; cursor: pointer; }
         .error-word { padding: 5px; border-radius: 4px; transition: 0.2s; }
@@ -225,10 +226,29 @@
         .bucket-when { background: #fff0eb; border: 2px dashed var(--color-when-dark); }
         .sort-item { background: white; padding: 8px; margin: 5px 0; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: grab; border: 1px solid #ccc; font-size: 0.9rem;}
         
-        /* --- ACT 12: MEMORY --- */
+        /* --- ACT 12: MEMORY (Fixed Rotation) --- */
         .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .memory-card { height: 80px; background: var(--color-accent); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; text-align: center; font-size: 0.9rem; padding: 5px; transition: transform 0.3s; }
-        .memory-card.flipped { background: white; color: #2d3436; border: 2px solid var(--color-accent); transform: rotateY(180deg); }
+        .memory-card { 
+            height: 80px; 
+            background: var(--color-accent); 
+            border-radius: 8px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: transparent; /* Text hidden initially */
+            text-align: center; 
+            font-size: 0.9rem; 
+            padding: 5px; 
+            transition: all 0.3s; 
+            user-select: none;
+        }
+        .memory-card.flipped { 
+            background: white; 
+            color: #2d3436; 
+            border: 2px solid var(--color-accent); 
+            /* Removed rotateY to fix mirrored text */
+        }
         .memory-card.matched { visibility: hidden; }
 
         /* --- ACT 15: TEACHER TOOLS --- */
@@ -373,10 +393,11 @@
             <!-- Activity 8 -->
             <div class="card quiz-box">
                 <h3>8. Was or Were?</h3>
+                <p>Choose the correct verb.</p>
                 <div class="quiz-question" id="wwSentence">They _____ sleeping.</div>
                 <div class="ww-container">
-                    <button class="btn" style="background: #a29bfe; color: white;" onclick="checkAct8('was')">WAS</button>
-                    <button class="btn" style="background: #6c5ce7; color: white;" onclick="checkAct8('were')">WERE</button>
+                    <button class="btn ww-btn" style="background: #a29bfe; color: white;" onclick="checkAct8('was')">WAS</button>
+                    <button class="btn ww-btn" style="background: #6c5ce7; color: white;" onclick="checkAct8('were')">WERE</button>
                 </div>
                 <div id="act8-feedback" class="feedback-msg"></div>
             </div>
@@ -510,7 +531,6 @@
             "cook": "pişirmek", "dance": "dans etmek", "music": "müzik", "fall": "düşmek",
             "see": "görmek", "stop": "durmak", "donkey": "eşek", "market": "pazar",
             "neighbor": "komşu", "ask": "sormak", "hear": "duymak", "think": "düşünmek",
-            // NEW WORDS
             "sort": "sıralamak / ayırmak", "bucket": "kova", "memory": "hafıza",
             "police": "polis", "incorrect": "hatalı", "team": "takım", "score": "puan",
             "random": "rastgele", "winner": "kazanan", "card": "kart", "flip": "çevirmek",
@@ -528,11 +548,12 @@
                 tooltip.style.top = (window.scrollY + rect.top - 30) + 'px';
                 tooltip.style.left = (window.scrollX + rect.left) + 'px';
                 setTimeout(() => tooltip.style.display = 'none', 2000);
+            } else {
+                tooltip.style.display = 'none';
             }
         });
 
-        /* --- PREVIOUS ACTIVITIES LOGIC (Summarized for space, fully functional) --- */
-        // Act 1
+        /* --- Activity 1: Slider --- */
         const sliderBar = document.getElementById('sliderBar');
         const sliderIcon = document.getElementById('sliderIcon');
         const sliderProgress = document.getElementById('sliderProgress');
@@ -550,7 +571,7 @@
             fb.innerHTML = (sliderVal > 60 && sliderVal < 85) ? "<span class='correct-text'>Correct!</span>" : "<span class='wrong-text'>Try again!</span>";
         }
 
-        // Act 2
+        /* --- Activity 2: Gap Fill --- */
         function checkActivity2() {
             let correct = 0;
             document.querySelectorAll('.gap-input').forEach(inp => {
@@ -561,12 +582,14 @@
             document.getElementById('act2-feedback').innerHTML = (correct===3) ? "<span class='correct-text'>Perfect!</span>" : "Check errors.";
         }
 
-        // Act 3
+        /* --- Activity 3: Logic Match --- */
         const pairs = [{id:1,t:"While I was cooking...",m:1,s:'l'}, {id:2,t:"When he entered...",m:2,s:'l'}, {id:3,t:"...I burned my hand.",m:1,s:'r'}, {id:4,t:"...we all smiled.",m:2,s:'r'}];
         let selItem = null;
         function initMatch() {
             const grid = document.getElementById('matchGrid');
-            [...pairs].sort(()=>Math.random()-0.5).forEach(p => {
+            grid.innerHTML = "";
+            const sortedPairs = [...pairs].sort(()=>Math.random()-0.5);
+            sortedPairs.forEach(p => {
                 const d = document.createElement('div');
                 d.className = 'match-item'; d.innerText = p.t; d.dataset.m = p.m;
                 d.onclick = () => {
@@ -585,10 +608,13 @@
         }
         initMatch();
 
-        // Act 4
-        const correctSent = ["While","she","was","running","she","lost","keys"];
+        /* --- Activity 4: Scrambled --- */
+        const correctSent = ["While","she","was","running","she","lost","her","keys"];
         const wordBank = document.getElementById('wordBank');
         const sentArea = document.getElementById('sentenceArea');
+        wordBank.innerHTML = "";
+        sentArea.innerHTML = "";
+        
         [...correctSent].sort(()=>Math.random()-0.5).forEach(w => {
             const b = document.createElement('div'); b.className='word-bubble'; b.innerText=w;
             b.onclick = () => (b.parentElement===wordBank ? sentArea : wordBank).appendChild(b);
@@ -599,7 +625,7 @@
             document.getElementById('act4-feedback').innerHTML = (JSON.stringify(curr)===JSON.stringify(correctSent)) ? "<span class='correct-text'>Correct!</span>" : "<span class='wrong-text'>Wrong order!</span>";
         }
 
-        // Act 5 & 6 & 7 & 8 & 9 & 10 (Simplified for brevity, same logic as before)
+        /* --- Activity 5: Story --- */
         let curVerb=null; const vModal=document.getElementById('verbModal');
         document.querySelectorAll('.verb-click').forEach(s => s.onclick = (e) => {
             curVerb=e.target; vModal.style.display='block';
@@ -607,11 +633,11 @@
             vModal.style.left=(window.scrollX+e.target.getBoundingClientRect().left)+'px';
         });
         function ansVerb(t) {
-            if(t===curVerb.dataset.type) { curVerb.style.backgroundColor=(t==='while'?'var(--color-while)':'var(--color-when)'); curVerb.style.color='#333'; }
+            if(curVerb && t===curVerb.dataset.type) { curVerb.style.backgroundColor=(t==='while'?'var(--color-while)':'var(--color-when)'); curVerb.style.color='#333'; }
             vModal.style.display='none';
         }
         
-        // Act 6 Speed Quiz
+        /* --- Activity 6: Speed Quiz --- */
         const q6 = [{t:"__ I was sleeping...",a:"While"},{t:"I was eating __ he came.",a:"When"}];
         let q6i=0;
         function startQuiz(){ q6i=0; nextQ6(); }
@@ -625,26 +651,50 @@
             q6i++; setTimeout(nextQ6,1000);
         }
 
+        /* --- Activity 7: Emoji --- */
         function checkAct7(i) { document.getElementById('act7-feedback').innerHTML = (i===0) ? "<span class='correct-text'>Correct!</span>" : "<span class='wrong-text'>No.</span>"; }
         
-        const q8 = ["was","was","were","was"]; let q8i=0;
-        function checkAct8(a) { 
-            if(a===q8[q8i]) { document.getElementById('wwSentence').innerText="Next..."; q8i=(q8i+1)%4; } 
+        /* --- Activity 8: Was/Were (FIXED) --- */
+        const q8Questions = [
+            { text: "They _____ sleeping.", ans: "were" },
+            { text: "I _____ working hard.", ans: "was" },
+            { text: "The cat _____ running.", ans: "was" },
+            { text: "We _____ eating pizza.", ans: "were" },
+            { text: "She _____ reading.", ans: "was" }
+        ];
+        let q8Index = 0;
+
+        function checkAct8(userAns) {
+            const currentQ = q8Questions[q8Index];
+            const feedback = document.getElementById('act8-feedback');
+            const questionText = document.getElementById('wwSentence');
+
+            if (userAns === currentQ.ans) {
+                feedback.innerHTML = "<span class='correct-text'>Correct!</span>";
+                // Move to next question after delay
+                setTimeout(() => {
+                    q8Index = (q8Index + 1) % q8Questions.length;
+                    questionText.innerText = q8Questions[q8Index].text;
+                    feedback.innerText = "";
+                }, 1000);
+            } else {
+                feedback.innerHTML = "<span class='wrong-text'>Wrong! Try again.</span>";
+            }
         }
 
+        /* --- Activity 9: Mistake --- */
         function checkAct9(el,isErr) {
             el.style.backgroundColor = isErr ? '#00b894' : '#fab1a0';
             document.getElementById('act9-feedback').innerHTML = isErr ? "<span class='correct-text'>Found it!</span>" : "Keep looking.";
         }
 
+        /* --- Activity 10: Story Fill --- */
         function checkActivity10() {
             const s1=document.getElementById('s1').value; const s2=document.getElementById('s2').value;
             document.getElementById('act10-feedback').innerHTML = (s1==='correct'&&s2==='correct') ? "<span class='correct-text'>Good job!</span>" : "Try again.";
         }
 
-        /* --- NEW ACTIVITIES (11-15) --- */
-
-        // Act 11: Sorting Hat
+        /* --- Act 11: Sorting Hat --- */
         function allowDrop(ev) { ev.preventDefault(); }
         function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
         function drop(ev, cat) {
@@ -656,13 +706,13 @@
                 el.style.border = "none";
                 el.style.background = "transparent";
                 el.style.fontWeight = "bold";
+                document.getElementById('act11-feedback').innerText = "";
             } else {
-                document.getElementById('act11-feedback').innerText = "Wrong bucket! Try again.";
-                setTimeout(() => document.getElementById('act11-feedback').innerText = "", 1000);
+                document.getElementById('act11-feedback').innerText = "Wrong bucket!";
             }
         }
 
-        // Act 12: Memory Game
+        /* --- Act 12: Memory Game (FIXED ROTATION) --- */
         const memCards = [
             {id:1, t:"While I was swimming", pair:1}, {id:2, t:"I saw a dolphin", pair:1},
             {id:3, t:"When the bell rang", pair:2}, {id:4, t:"we left the class", pair:2},
@@ -672,18 +722,20 @@
         let flipped = [];
         const memGrid = document.getElementById('memoryGrid');
         
+        // Init Game
         [...memCards].sort(()=>Math.random()-0.5).forEach(c => {
             const card = document.createElement('div');
             card.className = 'memory-card';
-            card.innerHTML = "<span>?</span>"; // Start hidden
+            card.innerHTML = "<span>?</span>"; // Initial state
             card.onclick = () => flipCard(card, c);
             memGrid.appendChild(card);
         });
 
         function flipCard(el, data) {
-            if(flipped.length < 2 && !el.classList.contains('flipped')) {
+            // Prevent clicking if already 2 selected or already matched/flipped
+            if(flipped.length < 2 && !el.classList.contains('flipped') && !el.classList.contains('matched')) {
                 el.classList.add('flipped');
-                el.innerText = data.t;
+                el.innerText = data.t; // Show text on flip
                 flipped.push({el, data});
                 
                 if(flipped.length === 2) {
@@ -699,41 +751,35 @@
                 c2.el.classList.add('matched');
                 document.getElementById('act12-feedback').innerHTML = "<span class='correct-text'>Match found!</span>";
             } else {
+                // Reset styling if wrong
                 c1.el.classList.remove('flipped'); c1.el.innerHTML = "<span>?</span>";
                 c2.el.classList.remove('flipped'); c2.el.innerHTML = "<span>?</span>";
             }
             flipped = [];
         }
 
-        // Act 13: Grammar Police
+        /* --- Act 13: Grammar Police --- */
         function checkAct13(isCorrect) {
-            // Sentence: "While I played football, I broke my leg." -> Technically Incorrect (While I was playing)
-            // Or simple past overlap context. Let's assume standard grammar rule: While + Continuous.
             const feedback = document.getElementById('act13-feedback');
             if(!isCorrect) {
                 feedback.innerHTML = "<span class='correct-text'>Correct! It should be 'While I WAS PLAYING'.</span>";
             } else {
-                feedback.innerHTML = "<span class='wrong-text'>You are a bad cop! 'While' needs continuous tense here.</span>";
+                feedback.innerHTML = "<span class='wrong-text'>Wrong! 'While' needs continuous tense here.</span>";
             }
         }
 
-        // Act 14: Story Ending
+        /* --- Act 14: Story Ending --- */
         function checkAct14(opt) {
             const fb = document.getElementById('act14-feedback');
-            // "While we were watching horror movie..." -> Interruption or simultaneous?
-            // Opt 1: eating popcorn (Simultaneous - OK)
-            // Opt 2: electricity went out (Interruption - Classic)
-            // Opt 3: go to sleep (Wrong tense)
             if(opt === 1) fb.innerHTML = "<span class='correct-text'>Yes! A classic interruption.</span>";
             else if(opt === 0) fb.innerHTML = "<span class='wrong-text'>This is possible, but usually we look for an interruption (When).</span>";
             else fb.innerHTML = "<span class='wrong-text'>Grammar error!</span>";
         }
 
-        // Act 15: Teacher Tools
+        /* --- Act 15: Teacher Tools --- */
         let scoreA = 0;
         let scoreB = 0;
         function pickStudent() {
-            // Anim effect
             const el = document.getElementById('rndDisplay');
             let i = 0;
             const interval = setInterval(() => {
@@ -750,3 +796,5 @@
     </script>
 </body>
 </html>
+
+
