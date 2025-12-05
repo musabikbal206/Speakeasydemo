@@ -13,7 +13,7 @@
             theme: {
                 extend: {
                     colors: {
-                        ios: { blue: '#007AFF', gray: '#8E8E93', bg: '#F2F2F7', darkbg: '#000000', card: '#1C1C1E' }
+                        ios: { blue: '#007AFF', gray: '#8E8E93', bg: '#F2F2F7', darkbg: '#000000', card: '#1C1C1E', bubble: '#2C2C2E' }
                     },
                     animation: {
                         'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -24,13 +24,13 @@
     </script>
 
     <style>
-        /* Modern Mobile Reset */
+        /* Mobile Optimization */
         * { -webkit-tap-highlight-color: transparent; }
         body { overscroll-behavior: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Mic Active Animation */
+        /* Mic & Avatar Animations */
         @keyframes ripple {
             0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
             70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
@@ -38,24 +38,24 @@
         }
         .mic-active {
             animation: ripple 1.5s infinite;
-            background-color: #ef4444 !important; /* Red */
-            color: white !important;
+            background-color: #ef4444 !important;
             border-color: #ef4444 !important;
-            transform: scale(1.1);
         }
-
-        /* Avatar Float */
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
         }
         .avatar-float { animation: float 4s ease-in-out infinite; }
+        
+        /* Message Bubbles */
+        .msg-user { background-color: #007AFF; color: white; border-radius: 18px 18px 0 18px; margin-left: auto; }
+        .msg-ai { background-color: #E5E5EA; color: black; border-radius: 18px 18px 18px 0; margin-right: auto; }
+        .dark .msg-ai { background-color: #2C2C2E; color: white; }
     </style>
 </head>
-<!-- Use h-dvh for better mobile browser support (address bar handling) -->
 <body class="bg-gray-900 h-[100dvh] w-screen flex items-center justify-center font-sans overflow-hidden select-none">
 
-    <!-- PHONE CONTAINER -->
+    <!-- PHONE FRAME -->
     <div class="relative w-full h-full sm:w-[375px] sm:h-[812px] bg-ios-bg dark:bg-black sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col border-0 sm:border-[6px] border-gray-800">
         
         <!-- STATUS BAR -->
@@ -68,131 +68,133 @@
             </div>
         </div>
 
-        <!-- ======================= CONTENT AREA (Flex Grow) ======================= -->
+        <!-- MAIN CONTENT -->
         <div class="flex-1 relative overflow-hidden w-full">
 
-            <!-- 1. CONTACTS VIEW -->
-            <div id="view-contacts" class="absolute inset-0 overflow-y-auto no-scrollbar pt-4 pb-24 px-4">
+            <!-- 1. CONTACTS LIST -->
+            <div id="view-contacts" class="view-section absolute inset-0 overflow-y-auto no-scrollbar pt-4 pb-24 px-4">
                 <div class="mb-4">
                     <h1 class="text-3xl font-bold text-black dark:text-white mb-1">Contacts</h1>
-                    <p class="text-gray-500 text-sm">Tap a contact to call</p>
                 </div>
                 <div class="bg-white dark:bg-ios-card rounded-2xl overflow-hidden shadow-sm divide-y divide-gray-100 dark:divide-gray-800" id="contact-list">
                     <!-- JS Injected -->
                 </div>
             </div>
 
-            <!-- 2. MESSAGES VIEW -->
-            <div id="view-messages" class="hidden absolute inset-0 overflow-y-auto no-scrollbar pt-4 pb-24 px-4">
+            <!-- 2. MESSAGES LIST (Threads) -->
+            <div id="view-threads" class="view-section hidden absolute inset-0 overflow-y-auto no-scrollbar pt-4 pb-24 px-4">
                 <div class="flex justify-between items-end mb-4">
                     <h1 class="text-3xl font-bold text-black dark:text-white">Messages</h1>
-                    <button onclick="clearHistory()" class="text-ios-blue text-sm font-semibold px-2 py-1">Clear</button>
                 </div>
-                <div id="messages-list" class="space-y-3 pb-4">
+                <div id="threads-list" class="space-y-2">
                     <!-- JS Injected -->
                 </div>
             </div>
 
-            <!-- 3. SETTINGS VIEW -->
-            <div id="view-settings" class="hidden absolute inset-0 overflow-y-auto no-scrollbar pt-4 pb-24 px-4">
-                <div class="mb-6">
-                    <h1 class="text-3xl font-bold text-black dark:text-white">Settings</h1>
+            <!-- 3. CHAT DETAIL (Texting UI) -->
+            <div id="view-chat-detail" class="hidden absolute inset-0 z-40 bg-ios-bg dark:bg-black flex flex-col h-full">
+                <!-- Chat Header -->
+                <div class="h-16 flex items-center px-4 bg-white/80 dark:bg-ios-card/80 backdrop-blur border-b border-gray-200 dark:border-gray-800 shrink-0">
+                    <button onclick="goBackToThreads()" class="text-ios-blue mr-3"><i class="fa-solid fa-chevron-left text-xl"></i></button>
+                    <div class="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold mr-3" id="chat-header-avatar">A</div>
+                    <div class="flex-1">
+                        <h3 id="chat-header-name" class="font-bold text-black dark:text-white">Name</h3>
+                        <p class="text-[10px] text-gray-500">AI Assistant</p>
+                    </div>
+                    <button onclick="startCallFromChat()" class="text-ios-blue text-xl"><i class="fa-solid fa-phone"></i></button>
                 </div>
+
+                <!-- Messages Area -->
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
+                    <!-- Bubbles injected here -->
+                </div>
+
+                <!-- Input Area -->
+                <div class="p-3 bg-white dark:bg-ios-card border-t border-gray-200 dark:border-gray-800 shrink-0 pb-safe">
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="chat-input" placeholder="Message..." class="flex-1 bg-gray-100 dark:bg-gray-800 text-black dark:text-white rounded-full px-4 py-2 outline-none border border-transparent focus:border-ios-blue transition-all" onkeypress="handleChatEnter(event)">
+                        <button onclick="sendChatMessage()" class="w-10 h-10 rounded-full bg-ios-blue text-white flex items-center justify-center shadow-md active:scale-95 transition">
+                            <i class="fa-solid fa-paper-plane text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. SETTINGS -->
+            <div id="view-settings" class="view-section hidden absolute inset-0 overflow-y-auto no-scrollbar pt-4 pb-24 px-4">
+                <div class="mb-6"><h1 class="text-3xl font-bold text-black dark:text-white">Settings</h1></div>
                 <div class="space-y-4">
-                    <!-- API Key -->
                     <div class="bg-white dark:bg-ios-card rounded-xl p-4 shadow-sm">
                         <div class="flex items-center gap-3 mb-2">
                             <i class="fa-solid fa-key text-yellow-500"></i>
                             <span class="text-black dark:text-white font-medium">Gemini API Key</span>
                         </div>
                         <input type="password" id="api-key-input" placeholder="Paste Key Here" class="w-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-ios-blue" onchange="saveSettings()">
-                        <p class="text-[10px] text-gray-400 mt-1">Using Model: gemini-2.5-flash-preview</p>
+                        <p class="text-[10px] text-gray-400 mt-1">Model: gemini-2.5-flash-preview-09-2025</p>
                     </div>
-                    
-                    <!-- Language -->
                     <div class="bg-white dark:bg-ios-card rounded-xl p-4 shadow-sm">
                         <div class="flex items-center gap-3 mb-2">
                             <i class="fa-solid fa-language text-blue-500"></i>
-                            <span class="text-black dark:text-white font-medium">Language Code</span>
+                            <span class="text-black dark:text-white font-medium">Language</span>
                         </div>
                         <input type="text" id="lang-input" placeholder="en-US" class="w-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white rounded-lg p-3 text-sm outline-none font-mono uppercase" onchange="saveSettings()">
-                        <p class="text-[10px] text-gray-400 mt-2">Try: en-US, es-ES, fr-FR, tr-TR, ja-JP</p>
                     </div>
-
-                    <!-- Theme -->
-                    <div class="bg-white dark:bg-ios-card rounded-xl p-4 shadow-sm flex justify-between items-center">
+                     <div class="bg-white dark:bg-ios-card rounded-xl p-4 shadow-sm flex justify-between items-center">
                         <span class="text-black dark:text-white font-medium">Dark Mode</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="toggle-dark" class="sr-only peer" onchange="toggleTheme()">
-                            <div class="w-11 h-6 bg-gray-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                        </label>
+                        <input type="checkbox" id="toggle-dark" class="accent-green-500 w-5 h-5" onchange="toggleTheme()">
                     </div>
                 </div>
             </div>
 
-            <!-- 4. CALL OVERLAY (Full Screen) -->
+            <!-- 5. CALL OVERLAY (Live) -->
             <div id="view-call" class="hidden absolute inset-0 bg-gray-900 z-[100] flex flex-col">
-                <!-- Header -->
                 <div class="mt-8 flex flex-col items-center">
                     <h2 id="call-name" class="text-2xl text-white font-semibold">Contact</h2>
                     <p id="call-status" class="text-blue-400 text-xs font-bold uppercase tracking-widest mt-1">Ready</p>
                 </div>
 
-                <!-- Avatar Area -->
-                <div class="flex-1 flex items-center justify-center relative w-full">
-                    <!-- Rings -->
-                    <div class="absolute w-64 h-64 border border-white/5 rounded-full animate-[pulse_4s_infinite]"></div>
-                    <div class="absolute w-48 h-48 border border-white/10 rounded-full animate-[pulse_3s_infinite]"></div>
-                    
-                    <!-- Avatar -->
-                    <div id="call-avatar" class="w-32 h-32 rounded-full flex items-center justify-center text-4xl text-white shadow-[0_0_40px_rgba(0,0,0,0.5)] border-4 border-gray-800 z-10 avatar-float transition-all duration-500">
+                <!-- Avatar & Live Captions -->
+                <div class="flex-1 flex flex-col items-center justify-center relative w-full overflow-hidden">
+                    <div id="call-avatar" class="w-32 h-32 rounded-full flex items-center justify-center text-4xl text-white shadow-2xl border-4 border-gray-800 z-10 avatar-float transition-all duration-500 shrink-0 mb-6">
                         <span>AI</span>
+                    </div>
+                    
+                    <!-- Live Captions Box -->
+                    <div class="w-full max-w-[80%] h-32 overflow-y-auto no-scrollbar text-center space-y-2 px-4 mask-image-gradient">
+                        <div id="live-captions" class="text-lg font-medium text-white/90 drop-shadow-md transition-all">
+                            <!-- Live text appears here -->
+                        </div>
                     </div>
                 </div>
 
-                <!-- Interaction Area (Bottom Half) -->
+                <!-- Controls -->
                 <div class="w-full px-8 pb-10 flex flex-col items-center gap-8">
-                    
-                    <!-- Main Mic Button -->
                     <div class="relative">
                         <button id="mic-btn" onclick="toggleMic()" class="w-20 h-20 rounded-full bg-gray-700 text-white shadow-lg flex items-center justify-center text-2xl transition-all duration-200 border border-white/10 active:scale-95 z-20 relative">
                             <i id="mic-icon" class="fa-solid fa-microphone"></i>
                         </button>
                         <p id="mic-hint" class="text-white/30 text-xs text-center mt-3 absolute w-40 -left-10">Tap to Speak</p>
                     </div>
-
-                    <!-- Controls Row -->
                     <div class="w-full flex justify-between items-center px-6">
-                        <button class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white/50 backdrop-blur-sm">
-                            <i class="fa-solid fa-volume-high"></i>
-                        </button>
-                        
-                        <button onclick="endCall()" class="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center text-white shadow-lg shadow-red-500/40 active:scale-95 transition-all">
-                            <i class="fa-solid fa-phone-slash text-2xl"></i>
-                        </button>
-                        
-                        <button class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white/50 backdrop-blur-sm">
-                            <i class="fa-solid fa-keyboard"></i>
-                        </button>
+                        <button class="w-12 h-12 rounded-full bg-white/10 text-white/50"><i class="fa-solid fa-volume-high"></i></button>
+                        <button onclick="endCall()" class="w-16 h-16 rounded-full bg-red-500 text-white shadow-lg shadow-red-500/40 active:scale-95"><i class="fa-solid fa-phone-slash text-2xl"></i></button>
+                        <button onclick="switchToChatFromCall()" class="w-12 h-12 rounded-full bg-white/10 text-white/50"><i class="fa-solid fa-message"></i></button>
                     </div>
                 </div>
             </div>
 
         </div>
 
-        <!-- BOTTOM NAVIGATION -->
-        <div class="h-[80px] min-h-[80px] w-full bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 flex justify-around items-start pt-3 z-50 pb-safe">
+        <!-- BOTTOM NAV -->
+        <div id="bottom-nav" class="h-[80px] min-h-[80px] w-full bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 flex justify-around items-start pt-3 z-30 pb-safe transition-transform duration-300">
             <button onclick="switchView('view-contacts')" class="nav-btn group flex flex-col items-center gap-1 w-16 text-ios-blue">
-                <i class="fa-solid fa-user text-xl"></i>
-                <span class="text-[10px] font-medium">Contacts</span>
+                <i class="fa-solid fa-user text-xl"></i><span class="text-[10px] font-medium">Contacts</span>
             </button>
-            <button onclick="switchView('view-messages')" class="nav-btn group flex flex-col items-center gap-1 w-16 text-gray-400">
-                <i class="fa-solid fa-comment text-xl"></i>
-                <span class="text-[10px] font-medium">Chat</span>
+            <button onclick="switchView('view-threads')" class="nav-btn group flex flex-col items-center gap-1 w-16 text-gray-400">
+                <i class="fa-solid fa-comment text-xl"></i><span class="text-[10px] font-medium">Messages</span>
             </button>
             <button onclick="switchView('view-settings')" class="nav-btn group flex flex-col items-center gap-1 w-16 text-gray-400">
-                <i class="fa-solid fa-gear text-xl"></i>
-                <span class="text-[10px] font-medium">Settings</span>
+                <i class="fa-solid fa-gear text-xl"></i><span class="text-[10px] font-medium">Settings</span>
             </button>
         </div>
 
@@ -202,83 +204,71 @@
     <script>
         const APP = {
             contacts: [
-                { id: 1, name: "Sarah", role: "Beginner Tutor", prompt: "You are Sarah, a kind beginner English tutor. Correct grammar gently.", color: "from-emerald-400 to-teal-600" },
+                { id: 1, name: "Sarah", role: "Beginner Tutor", prompt: "You are Sarah, a kind beginner English tutor. Keep sentences simple.", color: "from-emerald-400 to-teal-600" },
                 { id: 2, name: "Mike", role: "Casual Friend", prompt: "You are Mike. Talk casually using slang.", color: "from-blue-400 to-indigo-600" },
                 { id: 3, name: "Dr. Sterling", role: "Professor", prompt: "You are a strict professor. Use complex vocabulary.", color: "from-purple-500 to-pink-600" }
             ],
+            // Chats stored as { contactId: number, messages: Array<{role: 'user'|'ai', text: string}> }
+            chats: {}, 
             state: {
                 currentContact: null,
                 isRecording: false,
                 isAiSpeaking: false,
-                transcript: [],
+                currentCallTranscript: [], // Temporary for current call
                 recognition: null,
                 synth: window.speechSynthesis
             },
-            settings: {
-                apiKey: "",
-                darkMode: true,
-                lang: "en-US"
-            }
+            settings: { apiKey: "", darkMode: true, lang: "en-US" }
         };
 
         // --- INIT ---
         window.onload = () => {
-            const saved = localStorage.getItem('ai_phone_v4');
-            if(saved) APP.settings = { ...APP.settings, ...JSON.parse(saved).settings };
+            const saved = localStorage.getItem('ai_os_v5');
+            if(saved) {
+                const parsed = JSON.parse(saved);
+                APP.settings = { ...APP.settings, ...parsed.settings };
+                APP.chats = parsed.chats || {};
+            }
             
-            // Apply UI
             document.getElementById('api-key-input').value = APP.settings.apiKey;
             document.getElementById('lang-input').value = APP.settings.lang;
             document.getElementById('toggle-dark').checked = APP.settings.darkMode;
+            
             applyTheme();
             renderContacts();
+            renderThreads();
             updateClock();
             setInterval(updateClock, 10000);
-            
-            // Setup Speech
             initSpeech();
         };
 
         function saveData() {
-            localStorage.setItem('ai_phone_v4', JSON.stringify({ settings: APP.settings }));
+            localStorage.setItem('ai_os_v5', JSON.stringify({ 
+                settings: APP.settings,
+                chats: APP.chats
+            }));
         }
 
         function updateClock() {
             document.getElementById('clock').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
         }
 
-        // --- NAVIGATION ---
+        // --- VIEW SWITCHING ---
         function switchView(id) {
-            // Hide all views
-            ['view-contacts', 'view-messages', 'view-settings'].forEach(v => document.getElementById(v).classList.add('hidden'));
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
-            
-            // Nav Styling
+            document.getElementById('view-chat-detail').classList.add('hidden'); // Ensure detail closed
+            document.getElementById('bottom-nav').classList.remove('translate-y-full'); // Show nav
+
+            // Update Icons
             document.querySelectorAll('.nav-btn').forEach(b => {
                 b.classList.remove('text-ios-blue');
                 b.classList.add('text-gray-400');
             });
             const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.onclick.toString().includes(id));
-            if(activeBtn) {
-                activeBtn.classList.remove('text-gray-400');
-                activeBtn.classList.add('text-ios-blue');
-            }
-        }
+            if(activeBtn) { activeBtn.classList.remove('text-gray-400'); activeBtn.classList.add('text-ios-blue'); }
 
-        function renderContacts() {
-            const list = document.getElementById('contact-list');
-            list.innerHTML = APP.contacts.map(c => `
-                <div onclick="startCall(${c.id})" class="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-white/5 active:bg-gray-100 transition cursor-pointer">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br ${c.color} flex items-center justify-center text-white font-bold text-lg shadow-sm shrink-0">
-                        ${c.name[0]}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <h3 class="text-black dark:text-white font-semibold truncate">${c.name}</h3>
-                        <p class="text-gray-500 text-xs truncate">${c.role}</p>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
-                </div>
-            `).join('');
+            if(id === 'view-threads') renderThreads();
         }
 
         function toggleTheme() {
@@ -295,26 +285,42 @@
             APP.settings.apiKey = document.getElementById('api-key-input').value.trim();
             APP.settings.lang = document.getElementById('lang-input').value.trim() || 'en-US';
             saveData();
-            // Re-init speech with new language
-            initSpeech(); 
+            initSpeech();
         }
 
-        // --- CALL LOGIC ---
+        function renderContacts() {
+            const list = document.getElementById('contact-list');
+            list.innerHTML = APP.contacts.map(c => `
+                <div class="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer border-b border-gray-100 dark:border-gray-800 last:border-0" onclick="startCall(${c.id})">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br ${c.color} flex items-center justify-center text-white font-bold shadow-sm shrink-0">${c.name[0]}</div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-black dark:text-white">${c.name}</h3>
+                        <p class="text-xs text-gray-500">${c.role}</p>
+                    </div>
+                    <div class="flex gap-3">
+                         <button onclick="event.stopPropagation(); openChat(${c.id})" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-ios-blue flex items-center justify-center"><i class="fa-solid fa-message text-xs"></i></button>
+                         <button class="w-8 h-8 rounded-full bg-ios-blue text-white flex items-center justify-center"><i class="fa-solid fa-phone text-xs"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- CALL SYSTEM ---
         function startCall(id) {
             const contact = APP.contacts.find(c => c.id === id);
             APP.state.currentContact = contact;
-            APP.state.transcript = [];
+            APP.state.currentCallTranscript = []; // Reset call transcript
             
-            // Update UI
             document.getElementById('view-call').classList.remove('hidden');
             document.getElementById('call-name').innerText = contact.name;
             document.getElementById('call-avatar').className = `w-32 h-32 rounded-full flex items-center justify-center text-4xl text-white shadow-lg border-4 border-gray-800 z-10 avatar-float transition-all bg-gradient-to-br ${contact.color}`;
+            document.getElementById('live-captions').innerText = "";
             
             updateMicUI('idle');
             
-            // Greeting
+            // Initial Greeting
             setTimeout(() => {
-                const greeting = `Hello, this is ${contact.name}.`;
+                const greeting = `Hi, I'm ${contact.name}.`;
                 speakAI(greeting);
             }, 800);
         }
@@ -323,63 +329,52 @@
             APP.state.synth.cancel();
             if(APP.state.isRecording) APP.state.recognition.stop();
             document.getElementById('view-call').classList.add('hidden');
-            saveTranscript();
+            
+            // Save transcript to chat history
+            if(APP.state.currentCallTranscript.length > 0) {
+                const cid = APP.state.currentContact.id;
+                if(!APP.chats[cid]) APP.chats[cid] = [];
+                // Append all call messages
+                APP.chats[cid].push(...APP.state.currentCallTranscript);
+                saveData();
+                renderThreads();
+            }
         }
 
-        // --- MICROPHONE LOGIC (MANUAL TOGGLE) ---
+        function switchToChatFromCall() {
+            endCall(); // Ends voice part
+            openChat(APP.state.currentContact.id); // Opens text part
+        }
+
+        // --- SPEECH LOGIC ---
         function initSpeech() {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                alert("Browser not supported. Use Chrome.");
-                return;
-            }
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
             const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
             APP.state.recognition = new SpeechRec();
             APP.state.recognition.lang = APP.settings.lang;
             APP.state.recognition.continuous = false; 
-            APP.state.recognition.interimResults = false;
+            APP.state.recognition.interimResults = true; // For live captions
 
-            APP.state.recognition.onstart = () => {
-                APP.state.isRecording = true;
-                updateMicUI('listening');
-            };
-
-            APP.state.recognition.onend = () => {
-                APP.state.isRecording = false;
-                // If we didn't get results yet, just go back to idle
-                if(!APP.state.processing) updateMicUI('idle');
-            };
-
+            APP.state.recognition.onstart = () => { APP.state.isRecording = true; updateMicUI('listening'); };
+            APP.state.recognition.onend = () => { APP.state.isRecording = false; if(!APP.state.processing) updateMicUI('idle'); };
+            
             APP.state.recognition.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                if(text.trim()) {
+                const result = event.results[0];
+                const text = result[0].transcript;
+                
+                // Show live captions
+                document.getElementById('live-captions').innerText = `"${text}"`;
+
+                if(result.isFinal) {
                     handleUserSpeech(text);
                 }
-            };
-            
-            APP.state.recognition.onerror = (e) => {
-                console.error(e);
-                updateMicUI('idle');
-                if(e.error === 'not-allowed') alert("Please allow microphone access.");
             };
         }
 
         function toggleMic() {
-            if(APP.state.isAiSpeaking) {
-                APP.state.synth.cancel(); // Interrupt AI
-                APP.state.isAiSpeaking = false;
-            }
-
-            if(APP.state.isRecording) {
-                // User wants to stop manually
-                APP.state.recognition.stop();
-            } else {
-                // User wants to speak
-                try {
-                    APP.state.recognition.start();
-                } catch(e) {
-                    console.log("Mic restart error", e);
-                }
-            }
+            if(APP.state.isAiSpeaking) { APP.state.synth.cancel(); APP.state.isAiSpeaking = false; }
+            if(APP.state.isRecording) APP.state.recognition.stop();
+            else try { APP.state.recognition.start(); } catch(e){}
         }
 
         function updateMicUI(state) {
@@ -400,11 +395,10 @@
                 status.innerText = "Thinking...";
                 status.className = "text-yellow-400 text-xs font-bold uppercase tracking-widest mt-1";
             } else {
-                // Idle
                 btn.classList.remove('mic-active');
                 btn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
                 hint.innerText = "Tap to Speak";
-                status.innerText = "Your Turn";
+                status.innerText = "Ready";
                 status.className = "text-blue-400 text-xs font-bold uppercase tracking-widest mt-1";
             }
         }
@@ -412,90 +406,153 @@
         async function handleUserSpeech(text) {
             APP.state.processing = true;
             updateMicUI('processing');
-            APP.state.transcript.push({role:'user', text});
-
-            if(!APP.settings.apiKey) {
-                 APP.state.processing = false;
-                 speakAI("Please enter your API Key in Settings first.");
-                 return;
-            }
-
-            let responseText = "";
             
-            responseText = await fetchGemini(text);
+            // Add to transcript
+            APP.state.currentCallTranscript.push({role: 'user', text: text});
+
+            // Get AI Response
+            const responseText = await getAIResponse(text, APP.state.currentContact, APP.state.currentCallTranscript);
             
             APP.state.processing = false;
             speakAI(responseText);
         }
 
-        // --- AI & TTS ---
         function speakAI(text) {
             APP.state.isAiSpeaking = true;
-            APP.state.transcript.push({role:'ai', text});
-            updateMicUI('idle'); // Back to idle so user can listen
-            document.getElementById('call-status').innerText = "Speaking...";
+            // Add to transcript
+            APP.state.currentCallTranscript.push({role: 'ai', text: text});
+            
+            document.getElementById('live-captions').innerText = text; // Show AI text
+            updateMicUI('idle'); 
             
             const u = new SpeechSynthesisUtterance(text);
             u.lang = APP.settings.lang;
-            
-            u.onend = () => {
-                APP.state.isAiSpeaking = false;
-                document.getElementById('call-status').innerText = "Your Turn";
-            };
-
+            u.onend = () => { APP.state.isAiSpeaking = false; };
             APP.state.synth.speak(u);
         }
 
-        async function fetchGemini(input) {
-            const historyText = APP.state.transcript.slice(-6).map(t => `${t.role}: ${t.text}`).join('\n');
+        // --- AI API ---
+        async function getAIResponse(input, contact, historyContext) {
+            if(!APP.settings.apiKey) return "Please add API Key in Settings.";
+            
+            // Use last 10 messages for context
+            const contextMsg = historyContext.slice(-10).map(m => `${m.role}: ${m.text}`).join('\n');
+            
             const prompt = `
-                System: ${APP.state.currentContact.prompt}
-                Language: ${APP.settings.lang}
-                Conversation History:
-                ${historyText}
+                System: ${contact.prompt} Language: ${APP.settings.lang}
+                Context:
+                ${contextMsg}
                 User: ${input}
-                Response (Keep it conversational and concise):
+                AI Response (concise):
             `;
 
             try {
-                // Updated to Gemini 2.5 Flash Preview
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${APP.settings.apiKey}`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
                 const data = await res.json();
-                
-                if (data.error) {
-                    console.error("Gemini API Error", data.error);
-                    return "Sorry, I had an error connecting to the AI.";
-                }
-
                 return data.candidates[0].content.parts[0].text;
-            } catch(e) {
-                console.error(e);
-                return "Error connecting to AI.";
-            }
+            } catch(e) { return "Connection Error."; }
         }
 
-        // --- HISTORY ---
-        function saveTranscript() {
-            if(APP.state.transcript.length === 0) return;
-            const container = document.getElementById('messages-list');
-            const div = document.createElement('div');
-            div.className = "bg-white dark:bg-ios-card p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800";
-            div.innerHTML = `
-                <div class="flex justify-between mb-2">
-                    <span class="font-bold text-black dark:text-white">${APP.state.currentContact.name}</span>
-                    <span class="text-xs text-gray-500">${new Date().toLocaleTimeString()}</span>
-                </div>
-                <p class="text-xs text-gray-400">${APP.state.transcript.length} lines exchanged.</p>
-            `;
-            container.prepend(div);
+        // --- MESSAGING SYSTEM (THREADS & CHAT) ---
+        function renderThreads() {
+            const list = document.getElementById('threads-list');
+            const cids = Object.keys(APP.chats);
+            
+            if(cids.length === 0) {
+                list.innerHTML = `<div class="text-center text-gray-500 mt-10">No messages yet.<br>Start a call or chat.</div>`;
+                return;
+            }
+
+            list.innerHTML = cids.map(cid => {
+                const contact = APP.contacts.find(c => c.id == cid);
+                const msgs = APP.chats[cid];
+                const lastMsg = msgs[msgs.length - 1];
+                return `
+                    <div onclick="openChat(${cid})" class="bg-white dark:bg-ios-card p-4 rounded-xl flex items-center gap-3 cursor-pointer border border-transparent hover:border-gray-200 dark:hover:border-gray-700">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br ${contact.color} flex items-center justify-center text-white font-bold shrink-0">${contact.name[0]}</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between">
+                                <h3 class="font-bold text-black dark:text-white">${contact.name}</h3>
+                                <span class="text-[10px] text-gray-400">Now</span>
+                            </div>
+                            <p class="text-sm text-gray-500 truncate">${lastMsg ? lastMsg.text : 'Empty'}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openChat(cid) {
+            const contact = APP.contacts.find(c => c.id == cid);
+            APP.state.currentContact = contact;
+            
+            // Hide Tabs, Show Detail
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('view-chat-detail').classList.remove('hidden');
+            document.getElementById('bottom-nav').classList.add('translate-y-full'); // Hide Nav
+
+            // Header Setup
+            document.getElementById('chat-header-name').innerText = contact.name;
+            document.getElementById('chat-header-avatar').innerText = contact.name[0];
+            document.getElementById('chat-header-avatar').className = `w-10 h-10 rounded-full flex items-center justify-center text-white font-bold mr-3 bg-gradient-to-br ${contact.color}`;
+
+            renderChatMessages(cid);
+        }
+
+        function goBackToThreads() {
+            document.getElementById('view-chat-detail').classList.add('hidden');
+            switchView('view-threads');
         }
         
-        function clearHistory() {
-            document.getElementById('messages-list').innerHTML = '';
+        function startCallFromChat() {
+            document.getElementById('view-chat-detail').classList.add('hidden');
+            startCall(APP.state.currentContact.id);
+        }
+
+        function renderChatMessages(cid) {
+            const container = document.getElementById('chat-messages');
+            const msgs = APP.chats[cid] || [];
+            
+            container.innerHTML = msgs.map(m => `
+                <div class="flex w-full">
+                    <div class="max-w-[80%] px-4 py-2 text-sm ${m.role === 'user' ? 'msg-user' : 'msg-ai'}">
+                        ${m.text}
+                    </div>
+                </div>
+            `).join('');
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(!text) return;
+            
+            const cid = APP.state.currentContact.id;
+            if(!APP.chats[cid]) APP.chats[cid] = [];
+
+            // Add User Message
+            APP.chats[cid].push({role: 'user', text: text});
+            input.value = '';
+            renderChatMessages(cid);
+
+            // Get AI Response
+            const aiText = await getAIResponse(text, APP.state.currentContact, APP.chats[cid]);
+            
+            // Add AI Message
+            APP.chats[cid].push({role: 'ai', text: aiText});
+            renderChatMessages(cid);
+            saveData();
+        }
+
+        function handleChatEnter(e) {
+            if(e.key === 'Enter') sendChatMessage();
         }
 
     </script>
